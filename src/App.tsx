@@ -3,11 +3,8 @@ import {
   DeadlockViewer,
   PlanDiffViewer,
   PlanViewer,
-  type Deadlock,
-  type Engine,
-  type Plan,
-  type PlanDiff,
 } from "@culpritsql/plan-viewer";
+import type { Deadlock, Engine, Plan, PlanDiff } from "@culpritsql/plans";
 import "@culpritsql/plan-viewer/styles.css";
 import {
   ArrowLeft,
