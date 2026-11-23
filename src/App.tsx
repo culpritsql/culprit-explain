@@ -1832,6 +1832,7 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
                 {bundle.routes[rSlug].navLabel}
               </a>
             ))}
+            <a href="https://culpritsql.com/blog/">Blog</a>
           </nav>
 
           <nav className="ex-footer-locales" aria-label="Languages">
