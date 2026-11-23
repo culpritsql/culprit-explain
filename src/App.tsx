@@ -1565,8 +1565,10 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
                 <div className="ex-eco-grid">
                   <div className="ex-eco-card">
                     <div className="ex-eco-top">
-                      <img src={joinBase(basePath, "favicon.svg")} width={20} height={20} alt="" className="ex-logo" />
-                      <strong>Culprit SQL Studio</strong>
+                      <span className="ex-eco-title">
+                        <img src={joinBase(basePath, "favicon.svg")} width={20} height={20} alt="" className="ex-logo" />
+                        <strong>Culprit SQL Studio</strong>
+                      </span>
                     </div>
                     <p>{ui.ecoStudioDesc}</p>
                     <div className="ex-eco-links">
@@ -1581,8 +1583,89 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
 
                   <div className="ex-eco-card">
                     <div className="ex-eco-top">
-                      <Package size={17} className="ex-amber-icon" />
-                      <strong>@culpritsql/plans</strong>
+                      <span className="ex-eco-title">
+                        <Code2 size={17} className="ex-amber-icon" />
+                        <strong>Culprit SQL for VS Code</strong>
+                      </span>
+                      <span className="ex-eco-new-pill">NEW</span>
+                    </div>
+                    <p>{ui.ecoVscodeDesc}</p>
+                    <div className="ex-eco-links">
+                      <a href="https://marketplace.visualstudio.com/items?itemName=culpritsql.culprit-sql" target="_blank" rel="noopener">
+                        VS Code ↗
+                      </a>
+                      <a href="https://open-vsx.org/extension/culpritsql/culprit-sql" target="_blank" rel="noopener">
+                        Open VSX ↗
+                      </a>
+                      <a href="https://github.com/culpritsql/culprit-vscode" target="_blank" rel="noopener">
+                        <GitHubIcon size={13} /> GitHub
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="ex-eco-card">
+                    <div className="ex-eco-top">
+                      <span className="ex-eco-title">
+                        <Zap size={17} className="ex-amber-icon" />
+                        <strong>@culpritsql/devtools</strong>
+                      </span>
+                      <span className="ex-eco-new-pill">NEW</span>
+                    </div>
+                    <p>{ui.ecoDevtoolsDesc}</p>
+                    <div className="ex-eco-links">
+                      <a href="https://www.npmjs.com/package/@culpritsql/devtools" target="_blank" rel="noopener">
+                        npm ↗
+                      </a>
+                      <a href="https://github.com/culpritsql/culprit-devtools" target="_blank" rel="noopener">
+                        <GitHubIcon size={13} /> GitHub
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="ex-eco-card">
+                    <div className="ex-eco-top">
+                      <span className="ex-eco-title">
+                        <ShieldCheck size={17} className="ex-amber-icon" />
+                        <strong>@culpritsql/ci</strong>
+                      </span>
+                      <span className="ex-eco-new-pill">NEW</span>
+                    </div>
+                    <p>{ui.ecoCiDesc}</p>
+                    <div className="ex-eco-links">
+                      <a href="https://www.npmjs.com/package/@culpritsql/ci" target="_blank" rel="noopener">
+                        npm ↗
+                      </a>
+                      <a href="https://github.com/culpritsql/culprit-ci" target="_blank" rel="noopener">
+                        <GitHubIcon size={13} /> GitHub
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="ex-eco-card">
+                    <div className="ex-eco-top">
+                      <span className="ex-eco-title">
+                        <Package size={17} className="ex-amber-icon" />
+                        <strong>@culpritsql/test</strong>
+                      </span>
+                      <span className="ex-eco-new-pill">NEW</span>
+                    </div>
+                    <p>{ui.ecoTestDesc}</p>
+                    <div className="ex-eco-links">
+                      <a href="https://www.npmjs.com/package/@culpritsql/test" target="_blank" rel="noopener">
+                        npm ↗
+                      </a>
+                      <a href="https://github.com/culpritsql/culprit-test" target="_blank" rel="noopener">
+                        <GitHubIcon size={13} /> GitHub
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="ex-eco-card">
+                    <div className="ex-eco-top">
+                      <span className="ex-eco-title">
+                        <Package size={17} className="ex-amber-icon" />
+                        <strong>@culpritsql/plans</strong>
+                      </span>
                     </div>
                     <p>{ui.ecoPlansDesc}</p>
                     <div className="ex-eco-links">
@@ -1597,8 +1680,10 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
 
                   <div className="ex-eco-card">
                     <div className="ex-eco-top">
-                      <Package size={17} className="ex-amber-icon" />
-                      <strong>@culpritsql/plan-viewer</strong>
+                      <span className="ex-eco-title">
+                        <Package size={17} className="ex-amber-icon" />
+                        <strong>@culpritsql/plan-viewer</strong>
+                      </span>
                     </div>
                     <p>{ui.ecoViewerDesc}</p>
                     <div className="ex-eco-links">
@@ -1613,8 +1698,10 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
 
                   <div className="ex-eco-card">
                     <div className="ex-eco-top">
-                      <GitHubIcon size={17} />
-                      <strong>culprit-explain</strong>
+                      <span className="ex-eco-title">
+                        <GitHubIcon size={17} />
+                        <strong>culprit-explain</strong>
+                      </span>
                     </div>
                     <p>{ui.ecoExplainDesc}</p>
                     <div className="ex-eco-links">

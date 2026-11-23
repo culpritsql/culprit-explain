@@ -1232,8 +1232,37 @@ html[data-theme="dark"] img[src*="timescale.svg"] {
 .ex-eco-top {
   display: flex;
   align-items: center;
-  gap: 9px;
-  font-size: 14.5px;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.ex-eco-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.ex-eco-title strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ex-eco-new-pill {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  height: 19px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--ex-green-soft);
+  color: var(--ex-green);
+  font-family: var(--ex-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
 }
 
 .ex-eco-card p {
@@ -1246,8 +1275,9 @@ html[data-theme="dark"] img[src*="timescale.svg"] {
 
 .ex-eco-links {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 14px;
+  gap: 6px 13px;
   padding-top: 10px;
   border-top: 1px solid var(--ex-border);
   font-size: 12.5px;
