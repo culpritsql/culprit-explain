@@ -313,6 +313,13 @@ li {
   font-size: 12.5px;
 }
 
+.ex-primary-btn.copied,
+.ex-primary-btn.copied:hover:not(:disabled) {
+  background: var(--ex-green);
+  color: #ffffff;
+  box-shadow: 0 6px 18px -4px rgba(24, 125, 76, 0.35);
+}
+
 .ex-kbd {
   display: inline-flex;
   align-items: center;

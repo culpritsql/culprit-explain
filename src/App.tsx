@@ -66,7 +66,14 @@ import {
   type StudioMode,
 } from "./routes";
 import { type SampleCase, SAMPLES } from "./samples";
-import { decodeShareHash, encodeShareHash, scrubSqlLiterals, type SharePayloadV1 } from "./share";
+import {
+  copyTextToClipboard,
+  decodeShareHash,
+  encodeShareHash,
+  redactPayloadText,
+  scrubSqlLiterals,
+  type SharePayloadV1,
+} from "./share";
 import { type CoreError, ensurePlansWasm, extractCoreError } from "./wasm-client";
 
 export interface AppProps {
@@ -218,6 +225,7 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
   const [themePref, setThemePref] = useState<ThemePref>("system");
   const [systemDark, setSystemDark] = useState<boolean>(true);
   const [toast, setToast] = useState<string | null>(null);
+  const [shareCopied, setShareCopied] = useState<boolean>(false);
   const [copiedCmdIdx, setCopiedCmdIdx] = useState<number | null>(null);
 
   const fileInputPlanRef = useRef<HTMLInputElement | null>(null);
@@ -226,6 +234,7 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
   const fileInputDeadlockRef = useRef<HTMLInputElement | null>(null);
   const langWrapRef = useRef<HTMLDivElement | null>(null);
   const toastTimerRef = useRef<number | null>(null);
+  const shareCopiedTimerRef = useRef<number | null>(null);
 
   const bundle = BUNDLES[locale];
   const ui = bundle.ui;
@@ -252,14 +261,13 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
 
   useEffect(() => {
     bindPlanViewerClipboard(async (text, label) => {
-      try {
-        await navigator.clipboard.writeText(text);
+      const copied = await copyTextToClipboard(text);
+      if (copied) {
         showToast(label ? `${ui.copied}: ${label.toLowerCase()}` : ui.copied);
         return true;
-      } catch {
-        showToast("Clipboard permission denied");
-        return false;
       }
+      showToast("Clipboard permission denied");
+      return false;
     });
     setHistoryItems(loadHistory());
 
@@ -314,61 +322,98 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
-      try {
-        const wasm = await ensurePlansWasm();
-        if (cancelled) return;
-        setWasmStatus("ready");
 
-        if (window.location.hash.startsWith("#s=")) {
-          const shared = await decodeShareHash(window.location.hash);
-          if (shared && !cancelled) {
-            if (shared.m === "plan" && shared.p) {
-              setMode("plan");
-              setPlanText(shared.p);
-              if (shared.q) {
-                setSqlText(shared.q);
-                setShowSqlBox(true);
-              }
-              const parsed = wasm.parsePlan(shared.p, shared.e);
-              if (shared.q && !parsed.statement) parsed.statement = shared.q;
-              setPlanTitle(shared.t || "Shared Execution Plan");
-              setActive({ kind: "plan", plan: parsed, title: shared.t || "Shared Execution Plan" });
-            } else if (shared.m === "compare" && shared.pa && shared.pb) {
-              setMode("compare");
-              setBeforeName(shared.na || "Before");
-              setBeforeText(shared.pa);
-              setAfterName(shared.nb || "After");
-              setAfterText(shared.pb);
-              const a = wasm.parsePlan(shared.pa, shared.e);
-              const b = wasm.parsePlan(shared.pb, shared.e);
-              if (shared.q) {
-                if (!a.statement) a.statement = shared.q;
-                if (!b.statement) b.statement = shared.q;
-              }
-              const diff = wasm.diffPlans(a, shared.na || "Before", b, shared.nb || "After");
-              setActive({
-                kind: "compare",
-                a,
-                b,
-                diff,
-                nameA: shared.na || "Before",
-                nameB: shared.nb || "After",
-              });
-            } else if (shared.m === "deadlock" && shared.d) {
-              setMode("deadlock");
-              setDeadlockText(shared.d);
-              const dls = wasm.parseDeadlock(shared.d);
-              if (dls.length > 0) {
-                setActive({ kind: "deadlock", deadlocks: dls, index: 0, title: shared.t || "Shared Deadlock" });
-              }
-            }
+    const applyShareHash = async (hash: string) => {
+      if (!hash.startsWith("#s=")) return;
+      const wasm = await ensurePlansWasm();
+      if (cancelled) return;
+      const shared = await decodeShareHash(hash);
+      if (!shared) {
+        if (!cancelled) {
+          setActive(null);
+          setParseErr({ message: "Could not decode the shared link payload." });
+        }
+        return;
+      }
+      try {
+        setParseErr(null);
+        if (shared.m === "plan" && shared.p) {
+          setMode("plan");
+          setPlanText(shared.p);
+          if (shared.q) {
+            setSqlText(shared.q);
+            setShowSqlBox(true);
+          }
+          const parsed = wasm.parsePlan(shared.p, shared.e);
+          if (shared.q && !parsed.statement) parsed.statement = shared.q;
+          setPlanTitle(shared.t || "Shared Execution Plan");
+          setActive({ kind: "plan", plan: parsed, title: shared.t || "Shared Execution Plan" });
+        } else if (shared.m === "compare" && shared.pa && shared.pb) {
+          setMode("compare");
+          setBeforeName(shared.na || "Before");
+          setBeforeText(shared.pa);
+          setAfterName(shared.nb || "After");
+          setAfterText(shared.pb);
+          if (shared.q) {
+            setSqlText(shared.q);
+          }
+          const a = wasm.parsePlan(shared.pa, shared.e);
+          const b = wasm.parsePlan(shared.pb, shared.e);
+          if (shared.q) {
+            if (!a.statement) a.statement = shared.q;
+            if (!b.statement) b.statement = shared.q;
+          }
+          const diff = wasm.diffPlans(a, shared.na || "Before", b, shared.nb || "After");
+          setActive({
+            kind: "compare",
+            a,
+            b,
+            diff,
+            nameA: shared.na || "Before",
+            nameB: shared.nb || "After",
+          });
+        } else if (shared.m === "deadlock" && shared.d) {
+          setMode("deadlock");
+          setDeadlockText(shared.d);
+          const dls = wasm.parseDeadlock(shared.d);
+          if (dls.length > 0) {
+            setActive({ kind: "deadlock", deadlocks: dls, index: 0, title: shared.t || "Shared Deadlock" });
+          } else {
+            setActive(null);
+            setParseErr({ message: "No deadlock cycle was found in the shared link." });
           }
         }
+      } catch (err) {
+        if (cancelled) return;
+        const core = extractCoreError(err);
+        setActive(null);
+        setParseErr(
+          core
+            ? { code: core.code, message: core.message, hint: core.hint }
+            : { message: err instanceof Error ? err.message : "Could not parse the shared link." },
+        );
+      }
+    };
+
+    (async () => {
+      try {
+        await ensurePlansWasm();
+        if (cancelled) return;
+        setWasmStatus("ready");
       } catch {
         if (!cancelled) setWasmStatus("error");
+        return;
+      }
+      if (window.location.hash.startsWith("#s=")) {
+        await applyShareHash(window.location.hash);
       }
     })();
+
+    const onHashChange = () => {
+      if (window.location.hash.startsWith("#s=")) {
+        void applyShareHash(window.location.hash);
+      }
+    };
 
     const onPopState = () => {
       const parsed = parsePathnameLocaleAndSlug(window.location.pathname, basePath);
@@ -380,9 +425,11 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
       document.title = BUNDLES[parsed.locale].routes[parsed.slug].title;
     };
     window.addEventListener("popstate", onPopState);
+    window.addEventListener("hashchange", onHashChange);
     return () => {
       cancelled = true;
       window.removeEventListener("popstate", onPopState);
+      window.removeEventListener("hashchange", onHashChange);
     };
   }, [basePath]);
 
@@ -669,12 +716,12 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
       const wasm = await ensurePlansWasm();
       let payload: SharePayloadV1;
       if (active.kind === "plan") {
-        let rawPlan = planText.trim() || active.plan.raw || "";
+        let rawPlan = active.plan.raw || planText.trim() || "";
         if (redactShare) {
           try {
             rawPlan = wasm.exportPlan(active.plan, active.title, "native", { redact: true, notes: [] }).contents;
           } catch {
-            rawPlan = scrubSqlLiterals(rawPlan);
+            rawPlan = redactPayloadText(rawPlan);
           }
         }
         const query = active.plan.statement
@@ -684,23 +731,26 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
           : undefined;
         payload = { v: 1, m: "plan", t: active.title, e: active.plan.engine, p: rawPlan, q: query };
       } else if (active.kind === "compare") {
-        let pa = beforeText.trim() || active.a.raw || "";
-        let pb = afterText.trim() || active.b.raw || "";
+        let pa = active.a.raw || beforeText.trim() || "";
+        let pb = active.b.raw || afterText.trim() || "";
         if (redactShare) {
           try {
             pa = wasm.exportPlan(active.a, active.nameA, "native", { redact: true, notes: [] }).contents;
           } catch {
-            pa = scrubSqlLiterals(pa);
+            pa = redactPayloadText(pa);
           }
           try {
             pb = wasm.exportPlan(active.b, active.nameB, "native", { redact: true, notes: [] }).contents;
           } catch {
-            pb = scrubSqlLiterals(pb);
+            pb = redactPayloadText(pb);
           }
         }
-        payload = { v: 1, m: "compare", na: active.nameA, pa, nb: active.nameB, pb };
+        const rawQuery = active.b.statement || active.a.statement || sqlText.trim() || undefined;
+        const query = rawQuery ? (redactShare ? scrubSqlLiterals(rawQuery) : rawQuery) : undefined;
+        const sharedEngine = active.a.engine === active.b.engine ? active.b.engine : undefined;
+        payload = { v: 1, m: "compare", e: sharedEngine, q: query, na: active.nameA, pa, nb: active.nameB, pb };
       } else {
-        const dText = redactShare ? scrubSqlLiterals(deadlockText) : deadlockText;
+        const dText = redactShare ? redactPayloadText(deadlockText) : deadlockText;
         payload = { v: 1, m: "deadlock", t: active.title, d: dText };
       }
 
@@ -711,8 +761,17 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
       }
       const shareUrl = `${window.location.origin}${window.location.pathname}${encoded.hash}`;
       window.history.replaceState({}, "", `${window.location.pathname}${encoded.hash}`);
-      await navigator.clipboard.writeText(shareUrl);
-      showToast(redactShare ? "Copied redacted share link" : "Copied share link");
+      const copied = await copyTextToClipboard(shareUrl);
+      setShareCopied(true);
+      if (shareCopiedTimerRef.current) window.clearTimeout(shareCopiedTimerRef.current);
+      shareCopiedTimerRef.current = window.setTimeout(() => setShareCopied(false), 2200);
+      showToast(
+        copied
+          ? redactShare
+            ? "Copied redacted share link"
+            : "Copied share link"
+          : "Share link ready in address bar",
+      );
     } catch {
       showToast("Could not create share link");
     }
@@ -1007,9 +1066,13 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
                   <span>{ui.redactLiterals}</span>
                 </label>
 
-                <button type="button" className="ex-primary-btn small" onClick={handleShareLink}>
-                  <Share2 size={13} />
-                  <span>{ui.shareLink}</span>
+                <button
+                  type="button"
+                  className={`ex-primary-btn small ${shareCopied ? "copied" : ""}`}
+                  onClick={handleShareLink}
+                >
+                  {shareCopied ? <Check size={13} /> : <Share2 size={13} />}
+                  <span>{shareCopied ? `${ui.copied}!` : ui.shareLink}</span>
                 </button>
 
                 {active.kind === "plan" && (
@@ -1492,12 +1555,9 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
                           type="button"
                           className="ex-mini-btn"
                           onClick={async () => {
-                            try {
-                              await navigator.clipboard.writeText(g.command);
+                            if (await copyTextToClipboard(g.command)) {
                               setCopiedCmdIdx(idx);
                               window.setTimeout(() => setCopiedCmdIdx(null), 1800);
-                            } catch {
-                              // Ignore
                             }
                           }}
                         >
