@@ -1,10 +1,11 @@
 import {
   bindPlanViewerClipboard,
   DeadlockViewer,
+  ExtendedEventsViewer,
   PlanDiffViewer,
   PlanViewer,
 } from "@culpritsql/plan-viewer";
-import type { Deadlock, Engine, Plan, PlanDiff } from "@culpritsql/plans";
+import type { Deadlock, Engine, ExtendedEventsBatch, Plan, PlanDiff } from "@culpritsql/plans";
 import "@culpritsql/plan-viewer/styles.css";
 import {
   ArrowLeft,
@@ -67,6 +68,7 @@ import {
   copyTextToClipboard,
   decodeShareHash,
   encodeShareHash,
+  isValidSharedEventsBatch,
   redactPayloadText,
   scrubSqlLiterals,
   type SharePayloadV1,
@@ -83,7 +85,27 @@ type ThemePref = "system" | "dark" | "light";
 type ActiveResult =
   | { kind: "plan"; plan: Plan; title: string }
   | { kind: "compare"; a: Plan; b: Plan; diff: PlanDiff; nameA: string; nameB: string }
-  | { kind: "deadlock"; deadlocks: Deadlock[]; index: number; title: string };
+  | { kind: "deadlock"; deadlocks: Deadlock[]; index: number; title: string }
+  | { kind: "events"; batch: ExtendedEventsBatch; title: string };
+
+function isExtendedEventsXml(text: string): boolean {
+  const body = text.replace(/^\uFEFF?(?:<\?xml[^>]*\?>\s*)?/i, "").trimStart();
+  return /^<(?:events|RingBufferTarget|event\b)/i.test(body);
+}
+
+function hasXelMagic(bytes: Uint8Array): boolean {
+  return bytes.length >= 4 && bytes[0] === 0x5a && bytes[1] === 0x37 && bytes[2] === 0xab && bytes[3] === 0xef;
+}
+
+function decodeTextBytes(bytes: Uint8Array): string {
+  if (bytes.length >= 2 && bytes[0] === 0xff && bytes[1] === 0xfe) {
+    return new TextDecoder("utf-16le").decode(bytes);
+  }
+  if (bytes.length >= 2 && bytes[0] === 0xfe && bytes[1] === 0xff) {
+    return new TextDecoder("utf-16be").decode(bytes);
+  }
+  return new TextDecoder("utf-8").decode(bytes);
+}
 
 const ENGINE_PILLS: Array<{ id: EngineFilter; labelKey?: "auto"; label: string; slug: RouteSlug; icon?: string }> = [
   { id: "auto", labelKey: "auto", label: "Auto-detect", slug: "" },
@@ -372,13 +394,21 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
         } else if (shared.m === "deadlock" && shared.d) {
           setMode("deadlock");
           setDeadlockText(shared.d);
-          const dls = wasm.parseDeadlock(shared.d);
-          if (dls.length > 0) {
-            setActive({ kind: "deadlock", deadlocks: dls, index: 0, title: shared.t || "Shared Deadlock" });
+          if (isExtendedEventsXml(shared.d)) {
+            const batch = wasm.parseExtendedEventsXml(shared.d);
+            setActive({ kind: "events", batch, title: shared.t || "Shared Extended Events" });
           } else {
-            setActive(null);
-            setParseErr({ message: "No deadlock cycle was found in the shared link." });
+            const dls = wasm.parseDeadlock(shared.d);
+            if (dls.length > 0) {
+              setActive({ kind: "deadlock", deadlocks: dls, index: 0, title: shared.t || "Shared Deadlock" });
+            } else {
+              setActive(null);
+              setParseErr({ message: "No deadlock cycle was found in the shared link." });
+            }
           }
+        } else if (shared.m === "events" && isValidSharedEventsBatch(shared.eb)) {
+          setMode("deadlock");
+          setActive({ kind: "events", batch: shared.eb, title: shared.t || "Shared Extended Events" });
         }
       } catch (err) {
         if (cancelled) return;
@@ -450,11 +480,69 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
     [basePath],
   );
 
+  const runEventsXmlAnalysis = useCallback(async (rawInput: string, customTitle?: string) => {
+    const trimmed = rawInput.trim();
+    setBusy(true);
+    setParseErr(null);
+    try {
+      const wasm = await ensurePlansWasm();
+      setWasmStatus("ready");
+      const batch = wasm.parseExtendedEventsXml(trimmed);
+      const label = customTitle?.trim() || `Extended Events (${batch.records.length} events)`;
+      setActive({ kind: "events", batch, title: label });
+      setHistoryItems(
+        saveHistoryEntry({
+          fingerprint: quickFingerprint(`xexml:${trimmed}`),
+          title: label,
+          mode: "deadlock",
+          engine: "mssql",
+          summary: `Extended Events XML · ${batch.records.length} events · ${batch.deadlocks.length} deadlocks`,
+          deadlockText: trimmed,
+        }),
+      );
+    } catch (err) {
+      const core = extractCoreError(err);
+      setParseErr(
+        core
+          ? { code: core.code, message: core.message, hint: core.hint }
+          : { message: err instanceof Error ? err.message : "Could not parse Extended Events XML." },
+      );
+    } finally {
+      setBusy(false);
+    }
+  }, []);
+
+  const runXelAnalysis = useCallback(async (bytes: Uint8Array, fileName: string) => {
+    setBusy(true);
+    setParseErr(null);
+    try {
+      const wasm = await ensurePlansWasm();
+      setWasmStatus("ready");
+      const batch = wasm.parseXel(bytes);
+      const label = fileName.trim() || "Extended Events (.xel)";
+      setActive({ kind: "events", batch, title: label });
+    } catch (err) {
+      const core = extractCoreError(err);
+      setParseErr(
+        core
+          ? { code: core.code, message: core.message, hint: core.hint }
+          : { message: err instanceof Error ? err.message : "Could not parse binary .xel file." },
+      );
+    } finally {
+      setBusy(false);
+    }
+  }, []);
+
   const runPlanAnalysis = useCallback(
     async (rawInput: string, opts?: { title?: string; sql?: string; engineHint?: EngineFilter }) => {
       const trimmed = rawInput.trim();
       if (!trimmed) {
-        setParseErr({ message: "Paste an execution plan or drop a .sqlplan / .json / .txt file first." });
+        setParseErr({ message: "Paste an execution plan or drop a .sqlplan / .xel / .json / .txt file first." });
+        return;
+      }
+      const hint = opts?.engineHint ?? engineFilter;
+      if ((hint === "auto" || hint === "mssql") && isExtendedEventsXml(trimmed)) {
+        await runEventsXmlAnalysis(trimmed, opts?.title ?? planTitle);
         return;
       }
       setBusy(true);
@@ -462,7 +550,6 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
       try {
         const wasm = await ensurePlansWasm();
         setWasmStatus("ready");
-        const hint = opts?.engineHint ?? engineFilter;
         const parsed = wasm.parsePlan(trimmed, hint === "auto" ? undefined : hint);
         const query = (opts?.sql ?? sqlText).trim();
         if (query && !parsed.statement) {
@@ -498,7 +585,7 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
         setBusy(false);
       }
     },
-    [engineFilter, planTitle, sqlText],
+    [engineFilter, planTitle, runEventsXmlAnalysis, sqlText],
   );
 
   const runCompareAnalysis = useCallback(
@@ -560,44 +647,51 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
     [afterName, beforeName, engineFilter, sqlText],
   );
 
-  const runDeadlockAnalysis = useCallback(async (rawInput: string, customTitle?: string) => {
-    const trimmed = rawInput.trim();
-    if (!trimmed) {
-      setParseErr({ message: "Paste a deadlock XML graph or server log excerpt first." });
-      return;
-    }
-    setBusy(true);
-    setParseErr(null);
-    try {
-      const wasm = await ensurePlansWasm();
-      setWasmStatus("ready");
-      const dls = wasm.parseDeadlock(trimmed);
-      if (dls.length === 0) {
-        setParseErr({ message: "No deadlock cycle was found in the provided input." });
+  const runDeadlockAnalysis = useCallback(
+    async (rawInput: string, customTitle?: string) => {
+      const trimmed = rawInput.trim();
+      if (!trimmed) {
+        setParseErr({ message: "Paste a deadlock XML graph, Extended Events XML, or drop a .xel / .xdl / .log file first." });
         return;
       }
-      const label = customTitle?.trim() || `Deadlock (${dls[0].processes.length} sessions)`;
-      setActive({ kind: "deadlock", deadlocks: dls, index: 0, title: label });
-      setHistoryItems(
-        saveHistoryEntry({
-          fingerprint: quickFingerprint(`dl:${trimmed}`),
-          title: label,
-          mode: "deadlock",
-          summary: `Deadlock · ${dls[0].processes.length} sessions${dls.length > 1 ? ` (${dls.length} cycles)` : ""}`,
-          deadlockText: trimmed,
-        }),
-      );
-    } catch (err) {
-      const core = extractCoreError(err);
-      setParseErr(
-        core
-          ? { code: core.code, message: core.message, hint: core.hint }
-          : { message: err instanceof Error ? err.message : "Could not parse deadlock input." },
-      );
-    } finally {
-      setBusy(false);
-    }
-  }, []);
+      if (isExtendedEventsXml(trimmed)) {
+        await runEventsXmlAnalysis(trimmed, customTitle);
+        return;
+      }
+      setBusy(true);
+      setParseErr(null);
+      try {
+        const wasm = await ensurePlansWasm();
+        setWasmStatus("ready");
+        const dls = wasm.parseDeadlock(trimmed);
+        if (dls.length === 0) {
+          setParseErr({ message: "No deadlock cycle was found in the provided input." });
+          return;
+        }
+        const label = customTitle?.trim() || `Deadlock (${dls[0].processes.length} sessions)`;
+        setActive({ kind: "deadlock", deadlocks: dls, index: 0, title: label });
+        setHistoryItems(
+          saveHistoryEntry({
+            fingerprint: quickFingerprint(`dl:${trimmed}`),
+            title: label,
+            mode: "deadlock",
+            summary: `Deadlock · ${dls[0].processes.length} sessions${dls.length > 1 ? ` (${dls.length} cycles)` : ""}`,
+            deadlockText: trimmed,
+          }),
+        );
+      } catch (err) {
+        const core = extractCoreError(err);
+        setParseErr(
+          core
+            ? { code: core.code, message: core.message, hint: core.hint }
+            : { message: err instanceof Error ? err.message : "Could not parse deadlock input." },
+        );
+      } finally {
+        setBusy(false);
+      }
+    },
+    [runEventsXmlAnalysis],
+  );
 
   const loadSample = useCallback(
     async (sample: SampleCase) => {
@@ -673,7 +767,12 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
   );
 
   const handleFileLoad = async (file: File, target: "plan" | "before" | "after" | "deadlock") => {
-    const text = await file.text();
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    if (file.name.toLowerCase().endsWith(".xel") || hasXelMagic(bytes)) {
+      await runXelAnalysis(bytes, file.name);
+      return;
+    }
+    const text = decodeTextBytes(bytes);
     const baseName = file.name.replace(/\.[^.]+$/, "");
     if (target === "plan") {
       setPlanText(text);
@@ -746,6 +845,8 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
         const query = rawQuery ? (redactShare ? scrubSqlLiterals(rawQuery) : rawQuery) : undefined;
         const sharedEngine = active.a.engine === active.b.engine ? active.b.engine : undefined;
         payload = { v: 1, m: "compare", e: sharedEngine, q: query, na: active.nameA, pa, nb: active.nameB, pb };
+      } else if (active.kind === "events") {
+        payload = { v: 1, m: "events", t: active.title, eb: active.batch };
       } else {
         const dText = redactShare ? redactPayloadText(deadlockText) : deadlockText;
         payload = { v: 1, m: "deadlock", t: active.title, d: dText };
@@ -1051,6 +1152,18 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
                     )}
                   </div>
                 )}
+
+                {active.kind === "events" && (
+                  <div className="ex-active-identity">
+                    <img
+                      src={joinBase(basePath, ENGINE_META.mssql.icon)}
+                      width={18}
+                      height={18}
+                      alt={ENGINE_META.mssql.label}
+                    />
+                    <span className="ex-active-static-title">{active.title}</span>
+                  </div>
+                )}
               </div>
 
               <div className="ex-active-right">
@@ -1111,6 +1224,9 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
               )}
               {active.kind === "deadlock" && (
                 <DeadlockViewer deadlock={active.deadlocks[active.index]} theme={resolvedTheme} />
+              )}
+              {active.kind === "events" && (
+                <ExtendedEventsViewer batch={active.batch} title={active.title} theme={resolvedTheme} />
               )}
             </div>
           </section>
@@ -1232,7 +1348,7 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
                         <input
                           ref={fileInputPlanRef}
                           type="file"
-                          accept=".sqlplan,.xml,.json,.txt,.log"
+                          accept=".sqlplan,.xel,.xml,.json,.txt,.log"
                           hidden
                           onChange={(e) => {
                             const f = e.target.files?.[0];
@@ -1432,7 +1548,7 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
                       <div className="ex-card-head-left">
                         <Lock size={15} className="ex-amber-icon" />
                         <span className="ex-card-label">
-                          SQL Server XML · PostgreSQL Log · MySQL InnoDB Status
+                          SQL Server .xel &amp; XML · PostgreSQL Log · MySQL InnoDB Status
                         </span>
                       </div>
                       <div className="ex-card-actions">
@@ -1462,7 +1578,7 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
                         <input
                           ref={fileInputDeadlockRef}
                           type="file"
-                          accept=".xdl,.xml,.log,.txt"
+                          accept=".xel,.xdl,.xml,.log,.txt"
                           hidden
                           onChange={(e) => {
                             const f = e.target.files?.[0];

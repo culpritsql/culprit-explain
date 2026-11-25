@@ -37,7 +37,7 @@ Powered by [`@culpritsql/plans`](https://github.com/culpritsql/culprit-plans) (R
 - **100% local in WebAssembly**: Execution plans, SQL statements, and deadlock dumps are parsed inside your browser tab and never uploaded to any server.
 - **Five synchronized plan views**: Interactive flow **Diagram** (pan, cursor-anchored zoom, minimap, `Time` / `Cost` / `Rows` / `Reads` metric lens, step search), **Tree**, **Operations**, **Tables**, and **Raw** output.
 - **Side-by-side plan comparison**: Structural `Before` vs `After` diffing with measured speedup ratios, access-path flip badges, and root-cause explanations.
-- **Deadlock cycle graphs**: Interactive lock-wait SVG diagrams, victim rollback badges, and remediation SQL for SQL Server, PostgreSQL, and MySQL InnoDB.
+- **Deadlock cycle graphs & Extended Events (`.xel`)**: Interactive lock-wait SVG diagrams, victim rollback badges, and remediation SQL for SQL Server, PostgreSQL, and MySQL InnoDB, plus binary SQL Server Extended Events (`.xel`) and exported XML inspection directly in the browser without Windows SSMS.
 - **Serverless sharing & redaction**: Compress plans into `#s=...` URL fragments (which browsers never transmit over HTTP) with one-click SQL literal redaction, or export standalone HTML and Markdown reports.
 
 ---
@@ -47,7 +47,7 @@ Powered by [`@culpritsql/plans`](https://github.com/culpritsql/culprit-plans) (R
 | Engine | Execution Plans | Deadlocks |
 | --- | --- | --- |
 | **PostgreSQL & TimescaleDB** | `EXPLAIN (FORMAT JSON)`, `EXPLAIN (ANALYZE, BUFFERS)` text | Server log deadlock excerpts |
-| **SQL Server & Azure SQL** | `.sqlplan` Showplan XML | XML deadlock graphs (`.xdl` / `.xml`) |
+| **SQL Server & Azure SQL** | `.sqlplan` Showplan XML | Binary `.xel` Extended Events, XML deadlock graphs (`.xdl` / `.xml`) |
 | **MySQL & MariaDB** | `EXPLAIN FORMAT=JSON`, `EXPLAIN ANALYZE` tree text | `SHOW ENGINE INNODB STATUS` |
 | **YugabyteDB** | `EXPLAIN (ANALYZE, DIST, FORMAT JSON)` + DocDB metrics | PostgreSQL-compatible logs |
 | **SQLite** | `EXPLAIN QUERY PLAN` text | Not applicable |

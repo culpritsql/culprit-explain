@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { SAMPLES } from "../src/samples";
-import { decodeShareHash, encodeShareHash, redactPayloadText, scrubSqlLiterals } from "../src/share";
+import { decodeShareHash, encodeShareHash, isValidSharedEventsBatch, redactPayloadText, scrubSqlLiterals } from "../src/share";
 import { ensurePlansWasm } from "../src/wasm-client";
 
 describe("Share Link encoding, redaction, and Wasm round-trip", () => {
@@ -180,5 +180,22 @@ describe("Share Link encoding, redaction, and Wasm round-trip", () => {
     const parsedInnodbDl = wasm.parseDeadlock(redactedInnodbDl);
     expect(parsedInnodbDl.length).toBe(1);
     expect(parsedInnodbDl[0].processes.length).toBe(2);
+  });
+
+  test("parses SQL Server Extended Events XML and share-links ExtendedEventsBatch with redacted literals", async () => {
+    const wasm = await ensurePlansWasm();
+    const xeXml = `<events><event name="attention" package="sqlserver" timestamp="2026-11-25T04:24:44.500Z"><data name="duration"><value>2500</value></data><action name="sql_text" package="sqlserver"><value>SELECT 'explain-xe-secret' AS token</value></action></event></events>`;
+    const batch = wasm.parseExtendedEventsXml(xeXml);
+    expect(batch.format).toBe("xml");
+    expect(batch.records.length).toBe(1);
+    expect(JSON.stringify(batch)).not.toContain("explain-xe-secret");
+
+    const enc = await encodeShareHash({ v: 1, m: "events", t: "system_health", eb: batch });
+    expect(enc.ok).toBe(true);
+    if (!enc.ok) return;
+    const dec = await decodeShareHash(enc.hash);
+    expect(dec?.m).toBe("events");
+    expect(isValidSharedEventsBatch(dec?.eb)).toBe(true);
+    expect(dec?.eb?.records.length).toBe(1);
   });
 });

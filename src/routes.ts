@@ -65,10 +65,10 @@ export const CAPTURE_GUIDES: Record<Engine, CaptureGuide> = {
 
 export const DEADLOCK_GUIDES: CaptureGuide[] = [
   {
-    engineLabel: "SQL Server XML Deadlock",
+    engineLabel: "SQL Server Extended Events (.xel & XML)",
     icon: "providers/mssql.svg",
-    command: "SELECT CAST(event_data AS XML) FROM sys.fn_xe_telemetry_blob_target_read_file('system_health*.xel', NULL, NULL, NULL)\nWHERE object_name = 'xml_deadlock_report';",
-    note: "Drop an .xdl / .xml deadlock report from SSMS or Extended Events system_health.",
+    command: "-- Drop any binary system_health*.xel or Azure SQL Blob .xel file directly above (no SSMS needed),\n-- or query XML from Extended Events:\nSELECT CAST(event_data AS XML) FROM sys.fn_xe_telemetry_blob_target_read_file('system_health*.xel', NULL, NULL, NULL)\nWHERE object_name IN ('xml_deadlock_report', 'error_reported', 'attention');",
+    note: "Drop a binary .xel capture, an .xdl / .xml deadlock report, or exported <events> XML.",
   },
   {
     engineLabel: "PostgreSQL Log Excerpt",

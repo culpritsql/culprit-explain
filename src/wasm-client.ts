@@ -6,11 +6,23 @@ import type {
   ExportFile,
   ExportFormat,
   ExportOptions,
+  ExtendedEventsBatch,
   Plan,
   PlanDiff,
 } from "@culpritsql/plans";
 
-export type { CompareContext, CoreError, Deadlock, Engine, ExportFile, ExportFormat, ExportOptions, Plan, PlanDiff };
+export type {
+  CompareContext,
+  CoreError,
+  Deadlock,
+  Engine,
+  ExportFile,
+  ExportFormat,
+  ExportOptions,
+  ExtendedEventsBatch,
+  Plan,
+  PlanDiff,
+};
 
 type PlansModule = typeof import("@culpritsql/plans");
 

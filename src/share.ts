@@ -1,9 +1,9 @@
-import type { Engine } from "@culpritsql/plan-viewer";
+import type { Engine, ExtendedEventsBatch } from "@culpritsql/plan-viewer";
 import type { StudioMode } from "./routes";
 
 export interface SharePayloadV1 {
   v: 1;
-  m: StudioMode;
+  m: StudioMode | "events";
   t?: string;
   e?: Engine;
   q?: string;
@@ -13,6 +13,20 @@ export interface SharePayloadV1 {
   nb?: string;
   pb?: string;
   d?: string;
+  eb?: ExtendedEventsBatch;
+}
+
+export function isValidSharedEventsBatch(value: unknown): value is ExtendedEventsBatch {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as Partial<ExtendedEventsBatch>;
+  return (
+    (candidate.format === "xel" || candidate.format === "xml") &&
+    Array.isArray(candidate.records) &&
+    Array.isArray(candidate.deadlocks) &&
+    Array.isArray(candidate.locations) &&
+    Array.isArray(candidate.issues) &&
+    typeof candidate.records_examined === "number"
+  );
 }
 
 const MAX_HASH_CHARS = 28_000;
