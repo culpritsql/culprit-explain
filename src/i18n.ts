@@ -23,7 +23,16 @@ export const LOCALES: LocaleSpec[] = [
   { code: "pt", hreflang: "pt-BR", htmlLang: "pt-BR", ogLocale: "pt_BR", nativeLabel: "Português", shortLabel: "PT" },
 ];
 
-export type RouteSlug = "" | "postgres" | "sql-server" | "mysql" | "yugabytedb" | "sqlite" | "compare" | "deadlock";
+export type RouteSlug =
+  | ""
+  | "postgres"
+  | "sql-server"
+  | "mysql"
+  | "yugabytedb"
+  | "sqlite"
+  | "compare"
+  | "deadlock"
+  | "extended-events";
 
 export interface LocalizedRouteCopy {
   navLabel: string;
@@ -223,7 +232,7 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
           EN_PRIVACY_FAQ,
           {
             q: "Which database engines and plan formats does Culprit Explain support?",
-            a: "SQL Server Showplan XML (.sqlplan), PostgreSQL EXPLAIN (FORMAT JSON) and EXPLAIN ANALYZE text, MySQL and MariaDB EXPLAIN FORMAT=JSON and EXPLAIN ANALYZE tree text, YugabyteDB EXPLAIN (ANALYZE, DIST, FORMAT JSON), and SQLite EXPLAIN QUERY PLAN, plus deadlock dumps from SQL Server, PostgreSQL, and InnoDB.",
+            a: "SQL Server Showplan XML (.sqlplan) and binary Extended Events (.xel), PostgreSQL EXPLAIN (FORMAT JSON) and EXPLAIN ANALYZE text, MySQL and MariaDB EXPLAIN FORMAT=JSON and EXPLAIN ANALYZE tree text, YugabyteDB EXPLAIN (ANALYZE, DIST, FORMAT JSON), and SQLite EXPLAIN QUERY PLAN, plus deadlock dumps from SQL Server, PostgreSQL, and InnoDB.",
           },
           {
             q: "How is Culprit Explain different from PEV2 or Paste The Plan?",
@@ -251,14 +260,18 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
         navLabel: "SQL Server",
         title: "SQL Server Execution Plan (.sqlplan) Viewer Online | Culprit Explain",
         description:
-          "Open SQL Server and Azure SQL .sqlplan Showplan XML files directly in your browser. Spot Key Lookups, missing indexes, memory grant spills, and parallelism skew with zero server uploads.",
+          "Open SQL Server and Azure SQL .sqlplan Showplan XML and binary .xel Extended Events files directly in your browser. Spot Key Lookups, missing indexes, spills, and parallelism skew with zero server uploads.",
         h1: "SQL Server .sqlplan Viewer Online",
         subtitle:
-          "Drop any SSMS or Azure Data Studio .sqlplan XML file to inspect actual vs estimated rows, logical reads, batch-mode operators, Key Lookups, and missing index SQL.",
+          "Drop any SSMS or Azure Data Studio .sqlplan XML or .xel file to inspect actual vs estimated rows, logical reads, batch-mode operators, Key Lookups, and missing index SQL.",
         faqs: [
           {
             q: "Does Culprit Explain support both Estimated and Actual SQL Server .sqlplan files?",
             a: "Yes. Estimated plans render subtree costs, estimated rows, seek/residual predicates, and missing index hints. Actual plans unlock per-operator elapsed/CPU ms, 8 KB page reads, spills, and per-thread row skew.",
+          },
+          {
+            q: "Can I open SQL Server .xel Extended Events files without Windows SSMS?",
+            a: "Yes. Drop any binary .xel capture or exported Extended Events XML onto Culprit Explain (or open /extended-events/) to inspect timeouts, errors, waits, and deadlocks locally.",
           },
           EN_PRIVACY_FAQ,
         ],
@@ -313,11 +326,27 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
         navLabel: "Deadlock Viewer",
         title: "SQL Deadlock Graph Viewer Online (SQL Server, Postgres, MySQL) | Culprit Explain",
         description:
-          "Visualize SQL Server XML deadlock graphs, PostgreSQL deadlock log excerpts, and MySQL InnoDB deadlock dumps online. See lock wait cycles, victim sessions, and SQL remediation steps.",
+          "Visualize SQL Server XML & .xel deadlock graphs, PostgreSQL deadlock log excerpts, and MySQL InnoDB deadlock dumps online. See lock wait cycles, victim sessions, and SQL remediation steps.",
         h1: "SQL Deadlock Graph & Root-Cause Analyzer",
         subtitle:
-          "Drop a SQL Server .xdl/.xml deadlock report, PostgreSQL error log, or SHOW ENGINE INNODB STATUS dump for an interactive lock-cycle diagram and fix steps.",
+          "Drop a SQL Server .xel or .xdl/.xml deadlock report, PostgreSQL error log, or SHOW ENGINE INNODB STATUS dump for an interactive lock-cycle diagram and fix steps.",
         faqs: [EN_PRIVACY_FAQ],
+      },
+      "extended-events": {
+        navLabel: "Extended Events (.xel)",
+        title: "SQL Server Extended Events (.xel) Viewer Online Without SSMS | Culprit Explain",
+        description:
+          "Open binary SQL Server and Azure SQL Extended Events (.xel) files and RingBufferTarget XML directly in your browser on macOS, Linux, or Windows. 100% local WebAssembly with zero server uploads.",
+        h1: "SQL Server Extended Events (.xel) Viewer Online",
+        subtitle:
+          "Drop any binary system_health*.xel, Azure SQL Blob .xel capture, or RingBufferTarget XML to inspect query timeouts, errors, wait spikes, and deadlocks without SSMS.",
+        faqs: [
+          {
+            q: "Can I open binary SQL Server .xel files on macOS or Linux without SSMS?",
+            a: "Yes. Culprit Explain decodes binary SQL Server and Azure SQL Extended Events (.xel) files 100% locally in WebAssembly inside your browser tab, with automatic SQL literal scrubbing when sharing.",
+          },
+          EN_PRIVACY_FAQ,
+        ],
       },
     },
   },
@@ -460,6 +489,14 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
         subtitle: "拖入 SQL Server .xdl/.xml 死锁报告、PostgreSQL 日志或 InnoDB 状态输出，立即生成交互式锁等待环路图与修复建议。",
         faqs: [ZH_PRIVACY_FAQ],
       },
+      "extended-events": {
+        navLabel: "Extended Events (.xel)",
+        title: "SQL Server Extended Events (.xel) 在线查看器（无需 SSMS） | Culprit Explain",
+        description: "在 macOS、Linux 或 Windows 浏览器中直接打开二进制 SQL Server 与 Azure SQL Extended Events (.xel) 文件及 RingBufferTarget XML，100% 本地 WebAssembly 解析。",
+        h1: "SQL Server Extended Events (.xel) 在线查看器",
+        subtitle: "拖入 system_health*.xel、Azure SQL .xel 捕获文件或导出的 XML，无需安装 Windows SSMS 即可排查查询超时、错误、锁等待与死锁。",
+        faqs: [ZH_PRIVACY_FAQ],
+      },
     },
   },
 
@@ -593,6 +630,14 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
         description: "SQL Server のデッドロック XML、PostgreSQL ログ、MySQL SHOW ENGINE INNODB STATUS を図解し、ロック待機サイクルと解決策を表示。",
         h1: "SQL デッドロックグラフ・原因解析ツール",
         subtitle: "SQL Server .xdl/.xml、PostgreSQL エラーログ、InnoDB ステータスをドロップして、ロック循環グラフと修正手順を確認できます。",
+        faqs: [JA_PRIVACY_FAQ],
+      },
+      "extended-events": {
+        navLabel: "Extended Events (.xel)",
+        title: "SQL Server Extended Events (.xel) オンラインビューア（SSMS 不要） | Culprit Explain",
+        description: "macOS・Linux・Windows のブラウザ上で SQL Server / Azure SQL のバイナリ Extended Events (.xel) ファイルや RingBufferTarget XML を直接開いて解析します。",
+        h1: "SQL Server Extended Events (.xel) オンラインビューア",
+        subtitle: "system_health*.xel や Azure SQL Blob の .xel ファイルをドロップして、SSMS なしでタイムアウト・エラー・待機スパイク・デッドロックをローカル検査できます。",
         faqs: [JA_PRIVACY_FAQ],
       },
     },
@@ -729,6 +774,14 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
         subtitle: "SQL Server .xdl/.xml, PostgreSQL 로그 또는 InnoDB 상태를 드롭하여 락 대기 사이클과 해결 SQL을 확인하세요.",
         faqs: [KO_PRIVACY_FAQ],
       },
+      "extended-events": {
+        navLabel: "Extended Events (.xel)",
+        title: "SQL Server Extended Events (.xel) 온라인 뷰어 (SSMS 불필요) | Culprit Explain",
+        description: "macOS, Linux, Windows 브라우저에서 바이너리 SQL Server 및 Azure SQL Extended Events (.xel) 파일과 XML을 서버 업로드 없이 로컬 WebAssembly로 바로 열어 분석하세요.",
+        h1: "SQL Server Extended Events (.xel) 온라인 뷰어",
+        subtitle: "system_health*.xel, Azure SQL Blob .xel 캡처 또는 RingBufferTarget XML을 드롭하여 쿼리 타임아웃, 오류, 대기 스파이크 및 데드락을 SSMS 없이 확인하세요.",
+        faqs: [KO_PRIVACY_FAQ],
+      },
     },
   },
 
@@ -863,6 +916,14 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
         subtitle: "Загрузите .xdl/.xml отчет SQL Server, лог PostgreSQL или статус InnoDB для построения цикла блокировок и шагов исправления.",
         faqs: [RU_PRIVACY_FAQ],
       },
+      "extended-events": {
+        navLabel: "Extended Events (.xel)",
+        title: "Онлайн просмотрщик SQL Server Extended Events (.xel) без SSMS | Culprit Explain",
+        description: "Открывайте бинарные файлы SQL Server и Azure SQL Extended Events (.xel) и RingBufferTarget XML прямо в браузере на macOS, Linux и Windows локально через WebAssembly.",
+        h1: "Онлайн просмотрщик SQL Server Extended Events (.xel)",
+        subtitle: "Перетащите бинарный файл system_health*.xel или XML-дамп Extended Events для анализа таймаутов, ошибок, ожиданий и дедлоков без установки SSMS.",
+        faqs: [RU_PRIVACY_FAQ],
+      },
     },
   },
 
@@ -993,6 +1054,14 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
         description: "SQL Server Deadlock-XML, PostgreSQL-Logs und MySQL InnoDB Deadlocks als interaktiven Sperrzyklus-Graphen visualisieren.",
         h1: "SQL Deadlock-Graph & Ursachenanalyse",
         subtitle: "Laden Sie einen .xdl/.xml-Bericht, PostgreSQL-Log oder InnoDB-Status für ein interaktives Zyklusdiagramm.",
+        faqs: [DE_PRIVACY_FAQ],
+      },
+      "extended-events": {
+        navLabel: "Extended Events (.xel)",
+        title: "SQL Server Extended Events (.xel) Viewer Online ohne SSMS | Culprit Explain",
+        description: "Binäre SQL Server und Azure SQL Extended Events (.xel) Dateien sowie RingBufferTarget-XML auf macOS, Linux oder Windows direkt lokal per WebAssembly im Browser öffnen.",
+        h1: "SQL Server Extended Events (.xel) Viewer Online",
+        subtitle: "Ziehen Sie eine system_health*.xel-Datei oder Extended-Events-XML in den Browser, um Timeouts, Fehler, Waits und Deadlocks ohne SSMS zu prüfen.",
         faqs: [DE_PRIVACY_FAQ],
       },
     },
@@ -1127,6 +1196,14 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
         subtitle: "Arrastra un reporte .xdl/.xml, log de PostgreSQL o estado InnoDB para ver el ciclo de bloqueos y cómo resolverlo.",
         faqs: [ES_PRIVACY_FAQ],
       },
+      "extended-events": {
+        navLabel: "Extended Events (.xel)",
+        title: "Visor Online de SQL Server Extended Events (.xel) sin SSMS | Culprit Explain",
+        description: "Abre archivos binarios Extended Events (.xel) de SQL Server y Azure SQL y XML RingBufferTarget en macOS, Linux o Windows localmente en WebAssembly.",
+        h1: "Visor Online de SQL Server Extended Events (.xel)",
+        subtitle: "Arrastra cualquier captura binaria system_health*.xel o XML de Extended Events para inspeccionar timeouts, errores, esperas y deadlocks sin SSMS.",
+        faqs: [ES_PRIVACY_FAQ],
+      },
     },
   },
 
@@ -1257,6 +1334,14 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
         description: "Visualisez les graphes XML de deadlocks SQL Server, les logs PostgreSQL et SHOW ENGINE INNODB STATUS de MySQL.",
         h1: "Analyseur et graphe d'interblocages SQL (Deadlock)",
         subtitle: "Déposez un rapport .xdl/.xml, un log PostgreSQL ou un statut InnoDB pour visualiser le cycle de verrous et les correctifs.",
+        faqs: [FR_PRIVACY_FAQ],
+      },
+      "extended-events": {
+        navLabel: "Extended Events (.xel)",
+        title: "Visionneuse SQL Server Extended Events (.xel) en ligne sans SSMS | Culprit Explain",
+        description: "Ouvrez vos fichiers binaires Extended Events (.xel) SQL Server et Azure SQL ainsi que le XML RingBufferTarget sur macOS, Linux ou Windows localement en WebAssembly.",
+        h1: "Visionneuse SQL Server Extended Events (.xel) en ligne",
+        subtitle: "Déposez un fichier system_health*.xel ou XML Extended Events pour inspecter les timeouts, erreurs, attentes et deadlocks sans Windows SSMS.",
         faqs: [FR_PRIVACY_FAQ],
       },
     },
@@ -1391,6 +1476,14 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
         subtitle: "Solte um relatório .xdl/.xml, log do PostgreSQL ou status do InnoDB para ver o ciclo de locks e como corrigir.",
         faqs: [PT_PRIVACY_FAQ],
       },
+      "extended-events": {
+        navLabel: "Extended Events (.xel)",
+        title: "Visualizador SQL Server Extended Events (.xel) Online sem SSMS | Culprit Explain",
+        description: "Abra arquivos binários Extended Events (.xel) do SQL Server e Azure SQL e XML RingBufferTarget no macOS, Linux ou Windows localmente via WebAssembly.",
+        h1: "Visualizador SQL Server Extended Events (.xel) Online",
+        subtitle: "Solte qualquer arquivo system_health*.xel ou XML do Extended Events para inspecionar timeouts, erros, waits e deadlocks sem precisar do SSMS.",
+        faqs: [PT_PRIVACY_FAQ],
+      },
     },
   },
 };
@@ -1414,7 +1507,17 @@ export function parsePathnameLocaleAndSlug(
     idx = 1;
   }
   const candidate = parts[idx] ?? "";
-  const allowed: RouteSlug[] = ["", "postgres", "sql-server", "mysql", "yugabytedb", "sqlite", "compare", "deadlock"];
+  const allowed: RouteSlug[] = [
+    "",
+    "postgres",
+    "sql-server",
+    "mysql",
+    "yugabytedb",
+    "sqlite",
+    "compare",
+    "deadlock",
+    "extended-events",
+  ];
   const slug: RouteSlug = allowed.includes(candidate as RouteSlug) ? (candidate as RouteSlug) : "";
   return { locale, slug };
 }
@@ -1442,6 +1545,8 @@ export function slugModeAndEngine(slug: RouteSlug): { mode: StudioMode; engineFi
       return { mode: "compare", engineFilter: "auto", ogImage: "og/compare.png" };
     case "deadlock":
       return { mode: "deadlock", engineFilter: "auto", ogImage: "og/deadlock.png" };
+    case "extended-events":
+      return { mode: "deadlock", engineFilter: "mssql", ogImage: "og/extended-events.png" };
     default:
       return { mode: "plan", engineFilter: "auto", ogImage: "og/home.png" };
   }

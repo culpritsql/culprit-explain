@@ -262,7 +262,7 @@ await writeFile(path.join(distDir, "robots.txt"), robotsTxt, "utf8");
 const llmsTxt = [
   "# Culprit Explain",
   "",
-  "> Free, open-source, 100% client-side SQL execution plan visualizer, side-by-side plan comparator, and deadlock cycle analyzer powered by Rust and WebAssembly.",
+  "> Free, open-source, 100% client-side SQL execution plan visualizer, side-by-side plan comparator, deadlock cycle analyzer, and SQL Server Extended Events (.xel) inspector powered by Rust and WebAssembly.",
   "",
   `- Live web app: ${rawBaseUrl}/`,
   "- Main website (Culprit SQL Studio desktop app, CLI & MCP server): https://culpritsql.com/",

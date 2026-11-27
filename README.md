@@ -14,7 +14,7 @@
 [![Privacy: 100% Local Wasm](https://img.shields.io/badge/privacy-100%25%20local%20wasm-4cbb84?style=flat-square&labelColor=181715)](#privacy--security)
 [![License: MIT](https://img.shields.io/badge/license-MIT-4cbb84?style=flat-square&labelColor=181715)](./LICENSE)
 
-**Free client-side SQL execution plan visualizer, structural plan comparator, and deadlock cycle analyzer.**
+**Free client-side SQL execution plan visualizer, structural plan comparator, deadlock cycle analyzer, and Extended Events (`.xel`) inspector.**
 <br />
 Powered by [`@culpritsql/plans`](https://github.com/culpritsql/culprit-plans) (Rust + WebAssembly) and [`@culpritsql/plan-viewer`](https://github.com/culpritsql/culprit-plan-viewer) (React).
 

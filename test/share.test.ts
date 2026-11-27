@@ -38,7 +38,7 @@ describe("Share Link encoding, redaction, and Wasm round-trip", () => {
     expect(await decodeShareHash("#s=z1.not_valid_deflate_bytes")).toBeNull();
   });
 
-  test("round-trips all 5 interactive samples (redacted and unredacted) through Wasm", async () => {
+  test("round-trips all 6 interactive samples (redacted and unredacted) through Wasm", async () => {
     const wasm = await ensurePlansWasm();
 
     for (const sample of SAMPLES) {
@@ -109,6 +109,16 @@ describe("Share Link encoding, redaction, and Wasm round-trip", () => {
           const dls = wasm.parseDeadlock(dec!.d!);
           expect(dls.length).toBe(1);
           expect(dls[0].processes.length).toBe(2);
+        } else if (sample.eventsXml) {
+          const batch = wasm.parseExtendedEventsXml(sample.eventsXml);
+          expect(batch.records.length).toBeGreaterThanOrEqual(4);
+          expect(batch.deadlocks.length).toBe(1);
+          const enc = await encodeShareHash({ v: 1, m: "events", t: sample.title, eb: batch });
+          expect(enc.ok).toBe(true);
+          if (!enc.ok) continue;
+          const dec = await decodeShareHash(enc.hash);
+          expect(dec?.m).toBe("events");
+          expect(isValidSharedEventsBatch(dec?.eb)).toBe(true);
         }
       }
     }

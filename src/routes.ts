@@ -162,16 +162,20 @@ export const ROUTES: RouteMeta[] = [
     engineFilter: "mssql",
     title: "SQL Server Execution Plan (.sqlplan) Viewer Online | Culprit Explain",
     description:
-      "Open SQL Server and Azure SQL .sqlplan Showplan XML files directly in your browser. Spot Key Lookups, missing indexes, memory grant spills, implicit conversions, and parallelism skew with zero server uploads.",
+      "Open SQL Server and Azure SQL .sqlplan Showplan XML and .xel Extended Events files directly in your browser. Spot Key Lookups, missing indexes, spills, and parallelism skew with zero server uploads.",
     h1: "SQL Server .sqlplan Viewer Online",
     subtitle:
-      "Drop any SSMS or Azure Data Studio .sqlplan XML file to inspect actual vs estimated rows, logical reads, batch-mode operators, Key Lookups, and missing index SQL.",
-    placeholder: "Drop a .sqlplan file or paste <ShowPlanXML xmlns=\"http://schemas.microsoft.com/sqlserver/2004/07/showplan\">...",
+      "Drop any SSMS or Azure Data Studio .sqlplan XML or .xel file to inspect actual vs estimated rows, logical reads, batch-mode operators, Key Lookups, and missing index SQL.",
+    placeholder: "Drop a .sqlplan or .xel file, or paste <ShowPlanXML xmlns=\"http://schemas.microsoft.com/sqlserver/2004/07/showplan\">...",
     captureGuides: [CAPTURE_GUIDES.mssql],
     faqs: [
       {
         q: "Does Culprit Explain support both Estimated and Actual SQL Server .sqlplan files?",
         a: "Yes. Estimated plans render subtree costs, estimated rows, seek/residual predicates, and missing index hints. Actual plans additionally unlock per-operator elapsed/CPU milliseconds, logical/physical 8 KB page reads, spills, and per-thread row distributions.",
+      },
+      {
+        q: "Can I open SQL Server Extended Events (.xel) files on macOS or Linux without SSMS?",
+        a: "Yes. Drop any binary .xel file or exported Extended Events XML onto Culprit Explain (or visit /extended-events/) to inspect query timeouts, errors, wait spikes, and embedded deadlock graphs locally in WebAssembly.",
       },
       COMMON_PRIVACY_FAQ,
     ],
@@ -272,17 +276,44 @@ export const ROUTES: RouteMeta[] = [
     engineFilter: "auto",
     title: "SQL Deadlock Graph Viewer Online (SQL Server, Postgres, MySQL) | Culprit Explain",
     description:
-      "Visualize SQL Server XML deadlock graphs, PostgreSQL deadlock log excerpts, and MySQL InnoDB deadlock dumps online. See lock wait cycles, victim sessions, and SQL remediation steps.",
+      "Visualize SQL Server XML & .xel deadlock graphs, PostgreSQL deadlock log excerpts, and MySQL InnoDB deadlock dumps online. See lock wait cycles, victim sessions, and SQL remediation steps.",
     h1: "SQL Deadlock Graph & Root-Cause Analyzer",
     subtitle:
-      "Drop a SQL Server .xdl/.xml deadlock report, PostgreSQL error log, or SHOW ENGINE INNODB STATUS dump for an interactive lock-cycle diagram and fix steps.",
+      "Drop a SQL Server .xel or .xdl/.xml deadlock report, PostgreSQL error log, or SHOW ENGINE INNODB STATUS dump for an interactive lock-cycle diagram and fix steps.",
     placeholder:
-      "Paste SQL Server <deadlock> XML, PostgreSQL deadlock log lines, or MySQL SHOW ENGINE INNODB STATUS output...",
+      "Drop a .xel / .xdl file or paste SQL Server <deadlock> XML, PostgreSQL deadlock log lines, or MySQL SHOW ENGINE INNODB STATUS output...",
     captureGuides: DEADLOCK_GUIDES,
     faqs: [
       {
         q: "Which deadlock formats can Culprit Explain visualize?",
-        a: "SQL Server XML deadlock graphs (<deadlock-list> or <deadlock>), PostgreSQL server log deadlock blocks (ERROR: deadlock detected + DETAIL), and MySQL / MariaDB SHOW ENGINE INNODB STATUS output.",
+        a: "SQL Server XML deadlock graphs (<deadlock-list> or <deadlock>) and binary Extended Events (.xel), PostgreSQL server log deadlock blocks (ERROR: deadlock detected + DETAIL), and MySQL / MariaDB SHOW ENGINE INNODB STATUS output.",
+      },
+      COMMON_PRIVACY_FAQ,
+    ],
+  },
+  {
+    slug: "extended-events",
+    path: "/extended-events/",
+    navLabel: "Extended Events (.xel)",
+    mode: "deadlock",
+    engineFilter: "mssql",
+    title: "SQL Server Extended Events (.xel) Viewer Online Without SSMS | Culprit Explain",
+    description:
+      "Open binary SQL Server and Azure SQL Extended Events (.xel) files and RingBufferTarget XML directly in your browser on macOS, Linux, or Windows. 100% local WebAssembly with zero server uploads.",
+    h1: "SQL Server Extended Events (.xel) Viewer Online",
+    subtitle:
+      "Drop any binary system_health*.xel, Azure SQL Blob .xel capture, or RingBufferTarget XML to inspect timeouts, errors, wait spikes, and deadlocks without Windows SSMS.",
+    placeholder:
+      "Drop a binary .xel file anywhere on this card, or paste Extended Events <events> / <RingBufferTarget> XML...",
+    captureGuides: [DEADLOCK_GUIDES[0]],
+    faqs: [
+      {
+        q: "Can I open binary SQL Server .xel files on a Mac or Linux without SSMS?",
+        a: "Yes. Culprit Explain decodes binary SQL Server and Azure SQL Extended Events (.xel) files directly in your browser tab using Rust compiled to WebAssembly, with SQL literals redacted automatically when sharing.",
+      },
+      {
+        q: "Which Extended Events sessions and formats are supported?",
+        a: "Binary .xel files from system_health, custom Extended Events file targets, Azure SQL Blob Storage .xel captures, and XML exported from sys.fn_xe_file_target_read_file or RingBufferTarget.",
       },
       COMMON_PRIVACY_FAQ,
     ],

@@ -126,7 +126,17 @@ const ENGINE_META: Record<Engine, { label: string; icon: string; slug: RouteSlug
   sqlite: { label: "SQLite", icon: "providers/sqlite.svg", slug: "sqlite" },
 };
 
-const ROUTE_SLUGS: RouteSlug[] = ["", "postgres", "sql-server", "mysql", "yugabytedb", "sqlite", "compare", "deadlock"];
+const ROUTE_SLUGS: RouteSlug[] = [
+  "",
+  "postgres",
+  "sql-server",
+  "mysql",
+  "yugabytedb",
+  "sqlite",
+  "compare",
+  "deadlock",
+  "extended-events",
+];
 
 function joinBase(basePath: string, rel: string): string {
   const cleanBase = basePath.endsWith("/") ? basePath : `${basePath}/`;
@@ -264,10 +274,11 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
   const activeLocaleSpec = LOCALES.find((l) => l.code === locale) ?? LOCALES[0];
 
   const captureGuides = useMemo(() => {
+    if (slug === "extended-events") return [DEADLOCK_GUIDES[0]];
     if (mode === "deadlock") return DEADLOCK_GUIDES;
     if (engineFilter !== "auto") return [CAPTURE_GUIDES[engineFilter]];
     return baseRouteMeta.captureGuides;
-  }, [baseRouteMeta.captureGuides, engineFilter, mode]);
+  }, [baseRouteMeta.captureGuides, engineFilter, mode, slug]);
 
   const showToast = useCallback((msg: string) => {
     setToast(msg);
@@ -726,9 +737,13 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
         setMode("deadlock");
         setDeadlockText(sample.deadlockText);
         await runDeadlockAnalysis(sample.deadlockText, sample.title);
+      } else if (sample.eventsXml) {
+        setMode("deadlock");
+        setDeadlockText(sample.eventsXml);
+        await runEventsXmlAnalysis(sample.eventsXml, sample.title);
       }
     },
-    [runCompareAnalysis, runDeadlockAnalysis, runPlanAnalysis],
+    [runCompareAnalysis, runDeadlockAnalysis, runEventsXmlAnalysis, runPlanAnalysis],
   );
 
   const restoreHistory = useCallback(
@@ -1230,6 +1245,28 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
               {active.kind === "events" && (
                 <ExtendedEventsViewer batch={active.batch} title={active.title} theme={resolvedTheme} />
               )}
+            </div>
+
+            <div className="ex-active-eco-strip">
+              <span className="ex-active-eco-note">
+                <ShieldCheck size={13} className="ex-trust-icon" />
+                <span>{ui.localWasm} · MIT Open Source</span>
+              </span>
+              <div className="ex-active-eco-links">
+                <a
+                  href="https://marketplace.visualstudio.com/items?itemName=culpritsql.culprit-sql"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  Open .sqlplan / .xel in VS Code ↗
+                </a>
+                <a href="https://fleet.culpritsql.com" target="_blank" rel="noopener">
+                  Culprit Fleet ↗
+                </a>
+                <a href="https://culpritsql.com" target="_blank" rel="noopener">
+                  Culprit SQL Studio ↗
+                </a>
+              </div>
             </div>
           </section>
         ) : (

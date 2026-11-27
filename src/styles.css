@@ -763,7 +763,7 @@ html[data-theme="dark"] .ex-amber-icon {
 
 .ex-samples-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -969,6 +969,46 @@ html[data-theme="dark"] img[src*="timescale.svg"] {
   border-color: var(--ex-brand);
   background: var(--ex-brand-soft);
   color: var(--ex-ink);
+}
+
+.ex-active-eco-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-top: 12px;
+  padding: 9px 14px;
+  border-radius: 10px;
+  background: var(--ex-surface);
+  border: 1px solid var(--ex-border);
+  font-size: 12.5px;
+}
+
+.ex-active-eco-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ex-ink-2);
+  font-weight: 560;
+}
+
+.ex-active-eco-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  font-weight: 600;
+}
+
+.ex-active-eco-links a {
+  color: var(--ex-ink-2);
+  text-decoration: none;
+}
+
+.ex-active-eco-links a:hover {
+  color: var(--ex-ink);
+  text-decoration: underline;
 }
 
 /* Below-the-Fold Sections */

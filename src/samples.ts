@@ -17,6 +17,7 @@ export interface SampleCase {
   afterName?: string;
   afterText?: string;
   deadlockText?: string;
+  eventsXml?: string;
 }
 
 const PG_SPILL_BEFORE = JSON.stringify(
@@ -292,6 +293,42 @@ const MSSQL_DEADLOCK_XML = `<deadlock>
   </resource-list>
 </deadlock>`;
 
+const MSSQL_SYSTEM_HEALTH_XML = `<events>
+  <event name="xml_deadlock_report" package="sqlserver" timestamp="2026-11-22T18:14:09.890Z">
+    <data name="xml_report"><value>${MSSQL_DEADLOCK_XML}</value></data>
+  </event>
+  <event name="error_reported" package="sqlserver" timestamp="2026-11-22T18:14:09.892Z">
+    <data name="error_number"><value>1205</value></data>
+    <data name="severity"><value>13</value></data>
+    <data name="state"><value>51</value></data>
+    <data name="user_defined"><value>false</value></data>
+    <action name="session_id" package="sqlserver"><value>74</value></action>
+    <action name="client_app_name" package="sqlserver"><value>checkout-worker</value></action>
+    <action name="client_hostname" package="sqlserver"><value>worker-03</value></action>
+    <action name="database_name" package="sqlserver"><value>shop_prod</value></action>
+    <action name="sql_text" package="sqlserver"><value>UPDATE dbo.inventory SET reserved = reserved + 2 WHERE sku_id = 4410;</value></action>
+  </event>
+  <event name="error_reported" package="sqlserver" timestamp="2026-11-22T18:14:18.420Z">
+    <data name="error_number"><value>1222</value></data>
+    <data name="severity"><value>16</value></data>
+    <data name="state"><value>56</value></data>
+    <data name="user_defined"><value>false</value></data>
+    <action name="session_id" package="sqlserver"><value>91</value></action>
+    <action name="client_app_name" package="sqlserver"><value>order-api</value></action>
+    <action name="client_hostname" package="sqlserver"><value>api-pod-02</value></action>
+    <action name="database_name" package="sqlserver"><value>shop_prod</value></action>
+    <action name="sql_text" package="sqlserver"><value>SELECT id, status, total_cents FROM dbo.orders WITH (UPDLOCK) WHERE id = 91824;</value></action>
+  </event>
+  <event name="attention" package="sqlserver" timestamp="2026-11-22T18:14:33.504Z">
+    <data name="duration"><value>15002000</value></data>
+    <action name="session_id" package="sqlserver"><value>108</value></action>
+    <action name="client_app_name" package="sqlserver"><value>reporting-service</value></action>
+    <action name="client_hostname" package="sqlserver"><value>report-worker-01</value></action>
+    <action name="database_name" package="sqlserver"><value>shop_prod</value></action>
+    <action name="sql_text" package="sqlserver"><value>SELECT customer_id, SUM(total_cents) FROM dbo.orders WHERE status = 'paid' GROUP BY customer_id;</value></action>
+  </event>
+</events>`;
+
 const YUGABYTE_DOCDB_JSON = JSON.stringify(
   [
     {
@@ -394,6 +431,16 @@ export const SAMPLES: SampleCase[] = [
     icon: "providers/mssql.svg",
     mode: "deadlock",
     deadlockText: MSSQL_DEADLOCK_XML,
+  },
+  {
+    id: "mssql-xel",
+    title: "system_health Timeouts & Deadlock",
+    badge: "Extended Events",
+    metric: "4 events · .xel / XML",
+    tone: "amber",
+    icon: "providers/mssql.svg",
+    mode: "deadlock",
+    eventsXml: MSSQL_SYSTEM_HEALTH_XML,
   },
   {
     id: "yb-docdb",
