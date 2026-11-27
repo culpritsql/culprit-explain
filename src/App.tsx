@@ -29,6 +29,7 @@ import {
   Pin,
   Play,
   Plus,
+  Server,
   Share2,
   ShieldCheck,
   Sparkles,
@@ -38,6 +39,7 @@ import {
   Zap,
 } from "lucide-react";
 import { type DragEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import pkg from "../package.json";
 import {
   clearHistory,
   deleteHistoryEntry,
@@ -1757,6 +1759,25 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
                   <div className="ex-eco-card">
                     <div className="ex-eco-top">
                       <span className="ex-eco-title">
+                        <Server size={17} className="ex-amber-icon" />
+                        <strong>Culprit Fleet</strong>
+                      </span>
+                      <span className="ex-eco-new-pill">NEW</span>
+                    </div>
+                    <p>{ui.ecoFleetDesc}</p>
+                    <div className="ex-eco-links">
+                      <a href="https://fleet.culpritsql.com" target="_blank" rel="noopener">
+                        fleet.culpritsql.com ↗
+                      </a>
+                      <a href="https://github.com/culpritsql/culprit-fleet" target="_blank" rel="noopener">
+                        <GitHubIcon size={13} /> GitHub
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="ex-eco-card">
+                    <div className="ex-eco-top">
+                      <span className="ex-eco-title">
                         <Code2 size={17} className="ex-amber-icon" />
                         <strong>Culprit SQL for VS Code</strong>
                       </span>
@@ -1868,24 +1889,6 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
                       </a>
                     </div>
                   </div>
-
-                  <div className="ex-eco-card">
-                    <div className="ex-eco-top">
-                      <span className="ex-eco-title">
-                        <GitHubIcon size={17} />
-                        <strong>culprit-explain</strong>
-                      </span>
-                    </div>
-                    <p>{ui.ecoExplainDesc}</p>
-                    <div className="ex-eco-links">
-                      <a href="https://github.com/culpritsql/culprit-explain" target="_blank" rel="noopener">
-                        <GitHubIcon size={13} /> GitHub
-                      </a>
-                      <a href="https://github.com/culpritsql" target="_blank" rel="noopener">
-                        @culpritsql ↗
-                      </a>
-                    </div>
-                  </div>
                 </div>
               </div>
             </section>
@@ -1902,14 +1905,14 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
                 href="https://www.npmjs.com/package/@culpritsql/plans"
                 icon="npm"
                 label="@culpritsql/plans"
-                value="v0.5.6"
+                value={`v${pkg.dependencies["@culpritsql/plans"].replace(/^[\^~]/, "")}`}
                 color="#ffcf33"
               />
               <ShieldBadge
                 href="https://www.npmjs.com/package/@culpritsql/plan-viewer"
                 icon="npm"
                 label="@culpritsql/plan-viewer"
-                value="v0.5.6"
+                value={`v${pkg.dependencies["@culpritsql/plan-viewer"].replace(/^[\^~]/, "")}`}
                 color="#61dafb"
               />
               <ShieldBadge
@@ -1919,9 +1922,15 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
                 color="#4cbb84"
               />
               <ShieldBadge
-                href="https://github.com/culpritsql"
+                href="https://fleet.culpritsql.com"
+                label="Culprit Fleet"
+                value="fleet.culpritsql.com"
+                color="#e5e2da"
+              />
+              <ShieldBadge
+                href="https://github.com/culpritsql/culprit-explain"
                 icon="github"
-                label="GitHub"
+                label="Source"
                 value="@culpritsql"
                 color="#e5e2da"
               />
@@ -1945,6 +1954,7 @@ export function App({ initialPathname = "/", basePath = import.meta.env.BASE_URL
                 {bundle.routes[rSlug].navLabel}
               </a>
             ))}
+            <a href="https://fleet.culpritsql.com">Fleet</a>
             <a href="https://culpritsql.com/blog/">Blog</a>
           </nav>
 
