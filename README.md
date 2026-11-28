@@ -49,6 +49,7 @@ Powered by [`@culpritsql/plans`](https://github.com/culpritsql/culprit-plans) (R
 | **PostgreSQL & TimescaleDB** | `EXPLAIN (FORMAT JSON)`, `EXPLAIN (ANALYZE, BUFFERS)` text | Server log deadlock excerpts |
 | **SQL Server & Azure SQL** | `.sqlplan` Showplan XML | Binary `.xel` Extended Events, XML deadlock graphs (`.xdl` / `.xml`) |
 | **MySQL & MariaDB** | `EXPLAIN FORMAT=JSON`, `EXPLAIN ANALYZE` tree text | `SHOW ENGINE INNODB STATUS` |
+| **ClickHouse** | `EXPLAIN PLAN json = 1` physical step tree | Not applicable |
 | **YugabyteDB** | `EXPLAIN (ANALYZE, DIST, FORMAT JSON)` + DocDB metrics | PostgreSQL-compatible logs |
 | **SQLite** | `EXPLAIN QUERY PLAN` text | Not applicable |
 

@@ -38,7 +38,7 @@ describe("Share Link encoding, redaction, and Wasm round-trip", () => {
     expect(await decodeShareHash("#s=z1.not_valid_deflate_bytes")).toBeNull();
   });
 
-  test("round-trips all 6 interactive samples (redacted and unredacted) through Wasm", async () => {
+  test("round-trips all interactive samples (redacted and unredacted) through Wasm", async () => {
     const wasm = await ensurePlansWasm();
 
     for (const sample of SAMPLES) {

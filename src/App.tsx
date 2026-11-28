@@ -114,6 +114,7 @@ const ENGINE_PILLS: Array<{ id: EngineFilter; labelKey?: "auto"; label: string; 
   { id: "postgres", label: "PostgreSQL", slug: "postgres", icon: "providers/postgres.svg" },
   { id: "mssql", label: "SQL Server", slug: "sql-server", icon: "providers/mssql.svg" },
   { id: "mysql", label: "MySQL & MariaDB", slug: "mysql", icon: "providers/mysql.svg" },
+  { id: "clickhouse", label: "ClickHouse", slug: "clickhouse", icon: "providers/clickhouse.svg" },
   { id: "yugabyte", label: "YugabyteDB", slug: "yugabytedb", icon: "providers/yugabyte.svg" },
   { id: "sqlite", label: "SQLite", slug: "sqlite", icon: "providers/sqlite.svg" },
 ];
@@ -122,6 +123,7 @@ const ENGINE_META: Record<Engine, { label: string; icon: string; slug: RouteSlug
   postgres: { label: "PostgreSQL", icon: "providers/postgres.svg", slug: "postgres" },
   mssql: { label: "SQL Server", icon: "providers/mssql.svg", slug: "sql-server" },
   mysql: { label: "MySQL", icon: "providers/mysql.svg", slug: "mysql" },
+  clickhouse: { label: "ClickHouse", icon: "providers/clickhouse.svg", slug: "clickhouse" },
   yugabyte: { label: "YugabyteDB", icon: "providers/yugabyte.svg", slug: "yugabytedb" },
   sqlite: { label: "SQLite", icon: "providers/sqlite.svg", slug: "sqlite" },
 };
@@ -131,6 +133,7 @@ const ROUTE_SLUGS: RouteSlug[] = [
   "postgres",
   "sql-server",
   "mysql",
+  "clickhouse",
   "yugabytedb",
   "sqlite",
   "compare",

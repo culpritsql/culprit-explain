@@ -49,6 +49,13 @@ export const CAPTURE_GUIDES: Record<Engine, CaptureGuide> = {
     command: "EXPLAIN FORMAT=JSON SELECT * FROM orders WHERE status = 'paid';\n-- or MySQL 8.0.18+ actual timings:\nEXPLAIN ANALYZE SELECT * FROM orders WHERE status = 'paid';",
     note: "Supports both EXPLAIN FORMAT=JSON (MySQL & MariaDB) and EXPLAIN ANALYZE tree text.",
   },
+  clickhouse: {
+    engineLabel: "ClickHouse",
+    icon: "providers/clickhouse.svg",
+    command:
+      "EXPLAIN PLAN json = 1, description = 1\nSELECT customer_id, sum(total_cents)\nFROM orders\nWHERE created_date >= today() - 7\nGROUP BY customer_id\nORDER BY sum(total_cents) DESC\nLIMIT 50\nFORMAT TabSeparatedRaw;",
+    note: "Paste the JSON array from clickhouse-client (use FORMAT TabSeparatedRaw so quotes stay unescaped) or the HTTP interface.",
+  },
   yugabyte: {
     engineLabel: "YugabyteDB",
     icon: "providers/yugabyte.svg",
@@ -98,16 +105,17 @@ export const ROUTES: RouteMeta[] = [
     engineFilter: "auto",
     title: "Culprit Explain: Free Online SQL Execution Plan & Deadlock Visualizer",
     description:
-      "Visualize PostgreSQL EXPLAIN ANALYZE, SQL Server .sqlplan XML, MySQL, MariaDB, YugabyteDB, and SQLite execution plans, compare plans side-by-side, and analyze deadlocks locally in WebAssembly.",
+      "Visualize PostgreSQL EXPLAIN ANALYZE, SQL Server .sqlplan XML, MySQL, MariaDB, ClickHouse, YugabyteDB, and SQLite execution plans, compare plans side-by-side, and analyze deadlocks locally in WebAssembly.",
     h1: "Understand any SQL execution plan or deadlock in seconds.",
     subtitle:
       "Drop a plan or deadlock dump for interactive flow diagrams, bottleneck fixes, cache/disk I/O breakdown, and side-by-side diffs. Runs 100% locally in WebAssembly.",
     placeholder:
-      "Paste PostgreSQL EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) or text, SQL Server .sqlplan XML, MySQL EXPLAIN FORMAT=JSON / ANALYZE, YugabyteDB JSON, or SQLite EXPLAIN QUERY PLAN...",
+      "Paste PostgreSQL EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) or text, SQL Server .sqlplan XML, MySQL EXPLAIN FORMAT=JSON / ANALYZE, ClickHouse EXPLAIN PLAN json = 1, YugabyteDB JSON, or SQLite EXPLAIN QUERY PLAN...",
     captureGuides: [
       CAPTURE_GUIDES.postgres,
       CAPTURE_GUIDES.mssql,
       CAPTURE_GUIDES.mysql,
+      CAPTURE_GUIDES.clickhouse,
       CAPTURE_GUIDES.yugabyte,
       CAPTURE_GUIDES.sqlite,
     ],
@@ -115,11 +123,11 @@ export const ROUTES: RouteMeta[] = [
       COMMON_PRIVACY_FAQ,
       {
         q: "Which database engines and plan formats does Culprit Explain support?",
-        a: "Culprit Explain parses SQL Server Showplan XML (.sqlplan), PostgreSQL EXPLAIN (FORMAT JSON) and EXPLAIN ANALYZE text, MySQL and MariaDB EXPLAIN FORMAT=JSON and EXPLAIN ANALYZE tree text, YugabyteDB EXPLAIN (ANALYZE, DIST, FORMAT JSON), and SQLite EXPLAIN QUERY PLAN, plus deadlock dumps from SQL Server, PostgreSQL, and InnoDB.",
+        a: "Culprit Explain parses SQL Server Showplan XML (.sqlplan) and binary Extended Events (.xel), PostgreSQL EXPLAIN (FORMAT JSON) and EXPLAIN ANALYZE text, MySQL and MariaDB EXPLAIN FORMAT=JSON and EXPLAIN ANALYZE tree text, ClickHouse EXPLAIN PLAN json = 1 step trees, YugabyteDB EXPLAIN (ANALYZE, DIST, FORMAT JSON), and SQLite EXPLAIN QUERY PLAN, plus deadlock dumps from SQL Server, PostgreSQL, and InnoDB.",
       },
       {
         q: "How is Culprit Explain different from PEV2 or Paste The Plan?",
-        a: "Unlike single-engine viewers or cloud upload services, Culprit Explain supports six SQL engines in one workspace, compares Before and After plans structurally side-by-side, visualizes deadlock cycles, redacts SQL literals when sharing, and executes entirely client-side with zero server uploads.",
+        a: "Unlike single-engine viewers or cloud upload services, Culprit Explain supports eight SQL engines in one workspace, compares Before and After plans structurally side-by-side, visualizes deadlock cycles, redacts SQL literals when sharing, and executes entirely client-side with zero server uploads.",
       },
       {
         q: "Can I embed this plan viewer in my own React application?",
@@ -198,6 +206,28 @@ export const ROUTES: RouteMeta[] = [
       {
         q: "Does this support MySQL 8 EXPLAIN ANALYZE as well as EXPLAIN FORMAT=JSON?",
         a: "Yes. Paste either JSON plans from MySQL or MariaDB or arrow-indented EXPLAIN ANALYZE output with actual millisecond timings and loop counts.",
+      },
+      COMMON_PRIVACY_FAQ,
+    ],
+  },
+  {
+    slug: "clickhouse",
+    path: "/clickhouse/",
+    navLabel: "ClickHouse",
+    mode: "plan",
+    engineFilter: "clickhouse",
+    title: "ClickHouse EXPLAIN PLAN JSON Visualizer Online | Culprit Explain",
+    description:
+      "Visualize ClickHouse EXPLAIN PLAN json = 1 physical query pipelines online. Inspect ReadFromMergeTree steps, sorting, aggregation stages, and structural plan diffs locally in WebAssembly.",
+    h1: "ClickHouse EXPLAIN PLAN Visualizer",
+    subtitle:
+      "Paste JSON output from EXPLAIN PLAN json = 1, description = 1 to inspect ReadFromMergeTree stages, aggregation pipelines, and Before/After query rewrites.",
+    placeholder: "Paste ClickHouse EXPLAIN PLAN json = 1 output ([{\"Plan\": {\"Node Type\": ...}}])...",
+    captureGuides: [CAPTURE_GUIDES.clickhouse],
+    faqs: [
+      {
+        q: "How do I export unescaped JSON from clickhouse-client for Culprit Explain?",
+        a: "Append FORMAT TabSeparatedRaw to EXPLAIN PLAN json = 1, description = 1 SELECT ... so clickhouse-client prints a raw JSON array without TSV string escaping.",
       },
       COMMON_PRIVACY_FAQ,
     ],

@@ -380,6 +380,55 @@ const YUGABYTE_DOCDB_JSON = JSON.stringify(
   2,
 );
 
+const CLICKHOUSE_MERGETREE_JSON = JSON.stringify(
+  [
+    {
+      Plan: {
+        "Node Type": "Expression",
+        "Node Id": "Expression_0",
+        Description: "(Projection + Before ORDER BY)",
+        Plans: [
+          {
+            "Node Type": "Sorting",
+            "Node Id": "Sorting_1",
+            Description: "Sorting for ORDER BY (top 50 by total_revenue_cents DESC)",
+            Plans: [
+              {
+                "Node Type": "MergingAggregated",
+                "Node Id": "MergingAggregated_2",
+                Description: "Merge parallel aggregation states by customer_id",
+                Plans: [
+                  {
+                    "Node Type": "Aggregating",
+                    "Node Id": "Aggregating_3",
+                    Description: "Group by (customer_id) · sum(total_cents), count()",
+                    Plans: [
+                      {
+                        "Node Type": "Filter",
+                        "Node Id": "Filter_4",
+                        Description: "WHERE (region = 'us-east') AND (event_date >= today() - 7)",
+                        Plans: [
+                          {
+                            "Node Type": "ReadFromMergeTree",
+                            "Node Id": "ReadFromMergeTree_5",
+                            Description: "analytics.events_mergetree (PK: event_date, region · 48/1,920 granules)",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+  null,
+  2,
+);
+
 const SAMPLE_SQL =
   "SELECT o.id, o.total_cents, c.email\nFROM public.orders o\nJOIN public.customers c ON c.id = o.customer_id\nWHERE o.status = 'paid' AND o.created_at >= '2026-10-01'\nORDER BY o.created_at DESC\nLIMIT 50;";
 
@@ -441,6 +490,18 @@ export const SAMPLES: SampleCase[] = [
     icon: "providers/mssql.svg",
     mode: "deadlock",
     eventsXml: MSSQL_SYSTEM_HEALTH_XML,
+  },
+  {
+    id: "ch-mergetree",
+    title: "MergeTree Granule Scan + Aggregation",
+    badge: "ClickHouse",
+    metric: "6 steps · EXPLAIN JSON",
+    tone: "amber",
+    icon: "providers/clickhouse.svg",
+    mode: "plan",
+    engine: "clickhouse",
+    sql: "SELECT customer_id, count() AS events, sum(total_cents) AS total_revenue_cents\nFROM analytics.events_mergetree\nWHERE region = 'us-east' AND event_date >= today() - 7\nGROUP BY customer_id\nORDER BY total_revenue_cents DESC\nLIMIT 50;",
+    planText: CLICKHOUSE_MERGETREE_JSON,
   },
   {
     id: "yb-docdb",

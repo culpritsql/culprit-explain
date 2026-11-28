@@ -28,6 +28,7 @@ export type RouteSlug =
   | "postgres"
   | "sql-server"
   | "mysql"
+  | "clickhouse"
   | "yugabytedb"
   | "sqlite"
   | "compare"
@@ -201,7 +202,7 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
       upsellBadge: "Free & Open Source · MIT",
       upsellTitle: "Stop hunting for slow queries one plan at a time.",
       upsellBody:
-        "Culprit SQL Studio connects read-only to PostgreSQL, SQL Server, MySQL, MariaDB, YugabyteDB, TimescaleDB, and SQLite to rank your slowest queries, test missing indexes, and catch deadlocks automatically.",
+        "Culprit SQL Studio connects read-only to PostgreSQL, SQL Server, MySQL, MariaDB, ClickHouse, YugabyteDB, TimescaleDB, and SQLite to rank your slowest queries, test missing indexes, and catch deadlocks automatically.",
       upsellPrimaryCta: "Download Culprit SQL Studio",
       upsellSecondaryCta: "GitHub Repository",
       ecosystemHeading: "Open-Source Culprit SQL Ecosystem",
@@ -224,7 +225,7 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
         navLabel: "All Engines",
         title: "Culprit Explain: Free Online SQL Execution Plan & Deadlock Visualizer",
         description:
-          "Visualize PostgreSQL EXPLAIN ANALYZE, SQL Server .sqlplan XML, MySQL, MariaDB, YugabyteDB, and SQLite execution plans, compare plans side-by-side, and analyze deadlocks locally in WebAssembly.",
+          "Visualize PostgreSQL EXPLAIN ANALYZE, SQL Server .sqlplan XML, MySQL, MariaDB, ClickHouse, YugabyteDB, and SQLite execution plans, compare plans side-by-side, and analyze deadlocks locally in WebAssembly.",
         h1: "Understand any SQL execution plan or deadlock in seconds.",
         subtitle:
           "Drop a plan or deadlock dump for interactive flow diagrams, bottleneck fixes, cache/disk I/O breakdown, and side-by-side diffs. Runs 100% locally in WebAssembly.",
@@ -232,11 +233,11 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
           EN_PRIVACY_FAQ,
           {
             q: "Which database engines and plan formats does Culprit Explain support?",
-            a: "SQL Server Showplan XML (.sqlplan) and binary Extended Events (.xel), PostgreSQL EXPLAIN (FORMAT JSON) and EXPLAIN ANALYZE text, MySQL and MariaDB EXPLAIN FORMAT=JSON and EXPLAIN ANALYZE tree text, YugabyteDB EXPLAIN (ANALYZE, DIST, FORMAT JSON), and SQLite EXPLAIN QUERY PLAN, plus deadlock dumps from SQL Server, PostgreSQL, and InnoDB.",
+            a: "SQL Server Showplan XML (.sqlplan) and binary Extended Events (.xel), PostgreSQL EXPLAIN (FORMAT JSON) and EXPLAIN ANALYZE text, MySQL and MariaDB EXPLAIN FORMAT=JSON and EXPLAIN ANALYZE tree text, ClickHouse EXPLAIN PLAN json = 1 step trees, YugabyteDB EXPLAIN (ANALYZE, DIST, FORMAT JSON), and SQLite EXPLAIN QUERY PLAN, plus deadlock dumps from SQL Server, PostgreSQL, and InnoDB.",
           },
           {
             q: "How is Culprit Explain different from PEV2 or Paste The Plan?",
-            a: "Culprit Explain supports six SQL engines in one workspace, compares Before and After plans structurally side-by-side, visualizes deadlock cycles, redacts SQL literals when sharing, and runs completely client-side with zero server uploads.",
+            a: "Culprit Explain supports eight SQL engines in one workspace, compares Before and After plans structurally side-by-side, visualizes deadlock cycles, redacts SQL literals when sharing, and runs completely client-side with zero server uploads.",
           },
         ],
       },
@@ -288,6 +289,22 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
           {
             q: "Does this support MySQL 8 EXPLAIN ANALYZE as well as EXPLAIN FORMAT=JSON?",
             a: "Yes. Paste either JSON plans from MySQL or MariaDB or arrow-indented EXPLAIN ANALYZE output with actual millisecond timings and loop counts.",
+          },
+          EN_PRIVACY_FAQ,
+        ],
+      },
+      clickhouse: {
+        navLabel: "ClickHouse",
+        title: "ClickHouse EXPLAIN PLAN JSON Visualizer Online | Culprit Explain",
+        description:
+          "Visualize ClickHouse EXPLAIN PLAN json = 1 physical query pipelines online. Inspect ReadFromMergeTree steps, sorting, aggregation stages, and structural plan diffs locally in WebAssembly.",
+        h1: "ClickHouse EXPLAIN PLAN Visualizer",
+        subtitle:
+          "Paste JSON output from EXPLAIN PLAN json = 1, description = 1 to inspect ReadFromMergeTree stages, aggregation pipelines, and Before/After query rewrites.",
+        faqs: [
+          {
+            q: "How do I export unescaped JSON from clickhouse-client for Culprit Explain?",
+            a: "Append FORMAT TabSeparatedRaw to EXPLAIN PLAN json = 1, description = 1 SELECT ... so clickhouse-client outputs raw JSON without TSV escaping.",
           },
           EN_PRIVACY_FAQ,
         ],
@@ -396,7 +413,7 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
       upsellBadge: "免费开源 · MIT 许可",
       upsellTitle: "告别逐条手动粘贴排查慢查询。",
       upsellBody:
-        "Culprit SQL Studio 以只读方式连接 PostgreSQL、SQL Server、MySQL、MariaDB、YugabyteDB、TimescaleDB 和 SQLite，自动定位慢查询、验证缺失索引并捕获死锁。",
+        "Culprit SQL Studio 以只读方式连接 PostgreSQL、SQL Server、MySQL、MariaDB、ClickHouse、YugabyteDB、TimescaleDB 和 SQLite，自动定位慢查询、验证缺失索引并捕获死锁。",
       upsellPrimaryCta: "访问 Culprit SQL Studio",
       upsellSecondaryCta: "GitHub 仓库",
       ecosystemHeading: "Culprit SQL 开源生态",
@@ -419,7 +436,7 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
         navLabel: "全部数据库",
         title: "Culprit Explain：免费在线 SQL 执行计划可视化与死锁图分析工具",
         description:
-          "在线可视化分析 PostgreSQL EXPLAIN ANALYZE、SQL Server .sqlplan、MySQL、MariaDB、YugabyteDB 与 SQLite 执行计划，支持前后执行计划结构化对比与死锁环路分析，100% 本地 WebAssembly 运行。",
+          "在线可视化分析 PostgreSQL EXPLAIN ANALYZE、SQL Server .sqlplan、MySQL、MariaDB、ClickHouse、YugabyteDB 与 SQLite 执行计划，支持前后执行计划结构化对比与死锁环路分析，100% 本地 WebAssembly 运行。",
         h1: "秒级看懂任何 SQL 执行计划与死锁环路",
         subtitle:
           "拖入执行计划或死锁日志，即刻生成交互式算子流程图、性能瓶颈修复建议、缓存与磁盘 I/O 分析及前后对比。100% 浏览器本地运行。",
@@ -427,7 +444,7 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
           ZH_PRIVACY_FAQ,
           {
             q: "Culprit Explain 支持哪些数据库和执行计划格式？",
-            a: "支持 SQL Server (.sqlplan XML)、PostgreSQL (EXPLAIN FORMAT JSON 及 ANALYZE 文本)、MySQL 与 MariaDB (EXPLAIN FORMAT=JSON 及 EXPLAIN ANALYZE 树形文本)、YugabyteDB (DocDB 指标) 和 SQLite (EXPLAIN QUERY PLAN)，以及 SQL Server、PostgreSQL 和 InnoDB 死锁日志。",
+            a: "支持 SQL Server (.sqlplan XML 与 .xel)、PostgreSQL (EXPLAIN FORMAT JSON 及 ANALYZE 文本)、MySQL 与 MariaDB (EXPLAIN FORMAT=JSON 及 EXPLAIN ANALYZE 树形文本)、ClickHouse (EXPLAIN PLAN json = 1)、YugabyteDB (DocDB 指标) 和 SQLite (EXPLAIN QUERY PLAN)，以及 SQL Server、PostgreSQL 和 InnoDB 死锁日志。",
           },
         ],
       },
@@ -455,6 +472,15 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
         description: "在线可视化 MySQL EXPLAIN FORMAT=JSON、MySQL 8.0+ EXPLAIN ANALYZE 树形计划与 MariaDB JSON 执行计划，快速发现全表扫描与文件排序。",
         h1: "MySQL & MariaDB EXPLAIN 可视化分析工具",
         subtitle: "将复杂的 EXPLAIN FORMAT=JSON 与 EXPLAIN ANALYZE 输出转化为清晰的交互式算子图，高亮全表扫描、临时表与 filesort 瓶颈。",
+        faqs: [ZH_PRIVACY_FAQ],
+      },
+      clickhouse: {
+        navLabel: "ClickHouse",
+        title: "ClickHouse EXPLAIN PLAN JSON 在线可视化工具 | Culprit Explain",
+        description:
+          "在线可视化 ClickHouse EXPLAIN PLAN json = 1 物理查询流水线，直观检查 ReadFromMergeTree 扫描、聚合与排序算子，100% 浏览器本地运行。",
+        h1: "ClickHouse EXPLAIN PLAN 可视化工具",
+        subtitle: "粘贴 EXPLAIN PLAN json = 1, description = 1 的 JSON 输出，直观查看 MergeTree 读取阶段、聚合流水线及优化前后对比。",
         faqs: [ZH_PRIVACY_FAQ],
       },
       yugabytedb: {
@@ -545,7 +571,7 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
       upsellBadge: "無料・オープンソース · MIT",
       upsellTitle: "遅いクエリを 1 件ずつ手作業で探す必要はありません。",
       upsellBody:
-        "Culprit SQL Studio は PostgreSQL、SQL Server、MySQL、MariaDB、YugabyteDB、TimescaleDB、SQLite に読み取り専用で接続し、スロークエリの特定、不足インデックスの検証、デッドロック解析を自動化します。",
+        "Culprit SQL Studio は PostgreSQL、SQL Server、MySQL、MariaDB、ClickHouse、YugabyteDB、TimescaleDB、SQLite に読み取り専用で接続し、スロークエリの特定、不足インデックスの検証、デッドロック解析を自動化します。",
       upsellPrimaryCta: "Culprit SQL Studio を見る",
       upsellSecondaryCta: "GitHub リポジトリ",
       ecosystemHeading: "Culprit SQL オープンソースエコシステム",
@@ -568,7 +594,7 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
         navLabel: "全エンジン",
         title: "Culprit Explain：無料のオンライン SQL 実行計画・デッドロック可視化ツール",
         description:
-          "PostgreSQL EXPLAIN ANALYZE、SQL Server .sqlplan、MySQL、MariaDB、YugabyteDB、SQLite の実行計画をブラウザ内で可視化・比較・デッドロック解析。100% ローカル WebAssembly 動作で安全。",
+          "PostgreSQL EXPLAIN ANALYZE、SQL Server .sqlplan、MySQL、MariaDB、ClickHouse、YugabyteDB、SQLite の実行計画をブラウザ内で可視化・比較・デッドロック解析。100% ローカル WebAssembly 動作で安全。",
         h1: "あらゆる SQL 実行計画とデッドロックを数秒で可視化",
         subtitle:
           "実行計画やデッドロックログをドロップするだけで、フロー図、ボトルネック改善案、キャッシュ/ディスク I/O 内訳、Before/After 比較を表示します。",
@@ -598,6 +624,14 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
         description: "MySQL EXPLAIN FORMAT=JSON、MySQL 8.0+ EXPLAIN ANALYZE ツリー形式、MariaDB JSON 実行計画をブラウザ内でわかりやすく図解。",
         h1: "MySQL & MariaDB EXPLAIN 可視化ビューア",
         subtitle: "読みづらい EXPLAIN FORMAT=JSON や EXPLAIN ANALYZE 出力をフロー図に変換し、フルスキャンや filesort をハイライトします。",
+        faqs: [JA_PRIVACY_FAQ],
+      },
+      clickhouse: {
+        navLabel: "ClickHouse",
+        title: "ClickHouse EXPLAIN PLAN JSON 可視化ツール | Culprit Explain",
+        description: "ClickHouse の EXPLAIN PLAN json = 1 物理ステップツリーをブラウザ内で図解し、ReadFromMergeTree や集計・ソート段階をローカル解析。",
+        h1: "ClickHouse EXPLAIN PLAN 可視化ビューア",
+        subtitle: "EXPLAIN PLAN json = 1, description = 1 の JSON 出力を貼り付けて、MergeTree 読み取りや集計パイプラインを視覚的に確認できます。",
         faqs: [JA_PRIVACY_FAQ],
       },
       yugabytedb: {
@@ -688,7 +722,7 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
       upsellBadge: "무료 오픈소스 · MIT",
       upsellTitle: "느린 쿼리를 하나씩 수동으로 찾지 마세요.",
       upsellBody:
-        "Culprit SQL Studio는 PostgreSQL, SQL Server, MySQL, MariaDB, YugabyteDB, TimescaleDB, SQLite에 읽기 전용으로 연결하여 슬로우 쿼리 순위, 누락 인덱스 검증, 데드락 추적을 자동화합니다.",
+        "Culprit SQL Studio는 PostgreSQL, SQL Server, MySQL, MariaDB, ClickHouse, YugabyteDB, TimescaleDB, SQLite에 읽기 전용으로 연결하여 슬로우 쿼리 순위, 누락 인덱스 검증, 데드락 추적을 자동화합니다.",
       upsellPrimaryCta: "Culprit SQL Studio 살펴보기",
       upsellSecondaryCta: "GitHub 저장소",
       ecosystemHeading: "Culprit SQL 오픈소스 생태계",
@@ -711,7 +745,7 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
         navLabel: "전체 엔진",
         title: "Culprit Explain: 무료 온라인 SQL 실행 계획 시각화 및 데드락 분석기",
         description:
-          "PostgreSQL EXPLAIN ANALYZE, SQL Server .sqlplan, MySQL, MariaDB, YugabyteDB, SQLite 실행 계획을 브라우저에서 로컬 WebAssembly로 시각화하고 전후 비교 및 데드락 그래프를 분석하세요.",
+          "PostgreSQL EXPLAIN ANALYZE, SQL Server .sqlplan, MySQL, MariaDB, ClickHouse, YugabyteDB, SQLite 실행 계획을 브라우저에서 로컬 WebAssembly로 시각화하고 전후 비교 및 데드락 그래프를 분석하세요.",
         h1: "모든 SQL 실행 계획과 데드락을 몇 초 만에 파악하세요",
         subtitle:
           "실행 계획이나 데드락 로그를 드롭하면 인터랙티브 다이어그램, 병목 해결 SQL, 캐시/디스크 I/O 분석, 전후 비교를 즉시 보여줍니다.",
@@ -740,6 +774,14 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
         description: "MySQL EXPLAIN FORMAT=JSON, MySQL 8.0+ EXPLAIN ANALYZE 트리, MariaDB JSON 실행 계획을 온라인으로 시각화합니다.",
         h1: "MySQL & MariaDB EXPLAIN 시각화 분석기",
         subtitle: "복잡한 EXPLAIN FORMAT=JSON과 EXPLAIN ANALYZE 트리를 직관적인 플로우 다이어그램으로 변환하고 풀 스캔과 filesort를 표시합니다.",
+        faqs: [KO_PRIVACY_FAQ],
+      },
+      clickhouse: {
+        navLabel: "ClickHouse",
+        title: "ClickHouse EXPLAIN PLAN JSON 온라인 시각화 도구 | Culprit Explain",
+        description: "ClickHouse EXPLAIN PLAN json = 1 물리적 실행 파이프라인을 온라인으로 시각화하고 ReadFromMergeTree 스캔, 집계 및 정렬 단계를 분석하세요.",
+        h1: "ClickHouse EXPLAIN PLAN 시각화 분석기",
+        subtitle: "EXPLAIN PLAN json = 1, description = 1 JSON 출력을 붙여넣어 MergeTree 스캔 단계와 집계 파이프라인을 확인하세요.",
         faqs: [KO_PRIVACY_FAQ],
       },
       yugabytedb: {
@@ -830,7 +872,7 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
       upsellBadge: "Бесплатно · Open Source · MIT",
       upsellTitle: "Хватит искать медленные запросы вручную по одному плану.",
       upsellBody:
-        "Culprit SQL Studio подключается в режиме чтения к PostgreSQL, SQL Server, MySQL, MariaDB, YugabyteDB, TimescaleDB и SQLite, автоматически ранжирует тяжелые запросы, проверяет индексы и находит дедлоки.",
+        "Culprit SQL Studio подключается в режиме чтения к PostgreSQL, SQL Server, MySQL, MariaDB, ClickHouse, YugabyteDB, TimescaleDB и SQLite, автоматически ранжирует тяжелые запросы, проверяет индексы и находит дедлоки.",
       upsellPrimaryCta: "Открыть Culprit SQL Studio",
       upsellSecondaryCta: "GitHub репозиторий",
       ecosystemHeading: "Открытая экосистема Culprit SQL",
@@ -853,7 +895,7 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
         navLabel: "Все СУБД",
         title: "Culprit Explain: бесплатный онлайн визуализатор планов SQL и дедлоков",
         description:
-          "Визуализация планов выполнения PostgreSQL EXPLAIN ANALYZE, SQL Server .sqlplan, MySQL, MariaDB, YugabyteDB и SQLite, сравнение планов До/После и графы взаимоблокировок локально в WebAssembly.",
+          "Визуализация планов выполнения PostgreSQL EXPLAIN ANALYZE, SQL Server .sqlplan, MySQL, MariaDB, ClickHouse, YugabyteDB и SQLite, сравнение планов До/После и графы взаимоблокировок локально в WebAssembly.",
         h1: "Разберите любой план выполнения SQL или дедлок за секунды",
         subtitle:
           "Загрузите план или лог взаимоблокировки: интерактивные графы операторов, узкие места, чтение из кэша и с диска, сравнение До и После. 100% локально в браузере.",
@@ -882,6 +924,14 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
         description: "Онлайн визуализация MySQL EXPLAIN FORMAT=JSON, дерева EXPLAIN ANALYZE (MySQL 8.0+) и планов MariaDB локально в браузере.",
         h1: "Визуализатор MySQL и MariaDB EXPLAIN",
         subtitle: "Превратите громоздкий EXPLAIN FORMAT=JSON или EXPLAIN ANALYZE в наглядную схему операторов с подсветкой полных сканирований и filesort.",
+        faqs: [RU_PRIVACY_FAQ],
+      },
+      clickhouse: {
+        navLabel: "ClickHouse",
+        title: "Визуализатор планов ClickHouse EXPLAIN PLAN JSON онлайн | Culprit Explain",
+        description: "Онлайн визуализация физических планов ClickHouse EXPLAIN PLAN json = 1: анализ этапов ReadFromMergeTree, агрегации и сортировки локально в браузере.",
+        h1: "Визуализатор ClickHouse EXPLAIN PLAN",
+        subtitle: "Вставьте JSON-вывод EXPLAIN PLAN json = 1, description = 1 для наглядного анализа чтения MergeTree и конвейера агрегации.",
         faqs: [RU_PRIVACY_FAQ],
       },
       yugabytedb: {
@@ -972,7 +1022,7 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
       upsellBadge: "Kostenlos & Open Source · MIT",
       upsellTitle: "Schluss mit der manuellen Einzelsuche nach langsamen Abfragen.",
       upsellBody:
-        "Culprit SQL Studio verbindet sich schreibgeschützt mit PostgreSQL, SQL Server, MySQL, MariaDB, YugabyteDB, TimescaleDB und SQLite und erkennt langsame Abfragen, fehlende Indizes und Deadlocks automatisch.",
+        "Culprit SQL Studio verbindet sich schreibgeschützt mit PostgreSQL, SQL Server, MySQL, MariaDB, ClickHouse, YugabyteDB, TimescaleDB und SQLite und erkennt langsame Abfragen, fehlende Indizes und Deadlocks automatisch.",
       upsellPrimaryCta: "Culprit SQL Studio entdecken",
       upsellSecondaryCta: "GitHub Repository",
       ecosystemHeading: "Das Open-Source Culprit SQL Ökosystem",
@@ -995,7 +1045,7 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
         navLabel: "Alle Engines",
         title: "Culprit Explain: Kostenloser Online SQL Ausführungsplan & Deadlock Visualizer",
         description:
-          "Visualisieren Sie PostgreSQL EXPLAIN ANALYZE, SQL Server .sqlplan, MySQL, MariaDB, YugabyteDB und SQLite Ausführungspläne, vergleichen Sie Pläne und analysieren Sie Deadlocks lokal per WebAssembly.",
+          "Visualisieren Sie PostgreSQL EXPLAIN ANALYZE, SQL Server .sqlplan, MySQL, MariaDB, ClickHouse, YugabyteDB und SQLite Ausführungspläne, vergleichen Sie Pläne und analysieren Sie Deadlocks lokal per WebAssembly.",
         h1: "Jeden SQL-Ausführungsplan oder Deadlock in Sekunden verstehen",
         subtitle: "Legen Sie einen Plan oder Deadlock-Dump ab für interaktive Flussdiagramme, Engpass-Analysen, Cache/Disk-I/O und Vorher/Nachher-Vergleiche.",
         faqs: [DE_PRIVACY_FAQ],
@@ -1022,6 +1072,14 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
         description: "MySQL EXPLAIN FORMAT=JSON, MySQL 8+ EXPLAIN ANALYZE und MariaDB Ausführungspläne lokal im Browser visualisieren.",
         h1: "MySQL & MariaDB EXPLAIN Visualizer",
         subtitle: "Verwandeln Sie EXPLAIN FORMAT=JSON und EXPLAIN ANALYZE in übersichtliche Diagramme inklusive Full-Scan- und Filesort-Hinweisen.",
+        faqs: [DE_PRIVACY_FAQ],
+      },
+      clickhouse: {
+        navLabel: "ClickHouse",
+        title: "ClickHouse EXPLAIN PLAN JSON Visualizer Online | Culprit Explain",
+        description: "ClickHouse EXPLAIN PLAN json = 1 Ausführungspläne online im Browser visualisieren und ReadFromMergeTree-, Aggregations- und Sortierschritte prüfen.",
+        h1: "ClickHouse EXPLAIN PLAN Visualizer",
+        subtitle: "Fügen Sie die JSON-Ausgabe von EXPLAIN PLAN json = 1, description = 1 ein, um MergeTree-Scans und Aggregations-Pipelines zu prüfen.",
         faqs: [DE_PRIVACY_FAQ],
       },
       yugabytedb: {
@@ -1112,7 +1170,7 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
       upsellBadge: "Gratis y Open Source · MIT",
       upsellTitle: "Deja de buscar consultas lentas pegando planes uno por uno.",
       upsellBody:
-        "Culprit SQL Studio se conecta en modo solo lectura a PostgreSQL, SQL Server, MySQL, MariaDB, YugabyteDB, TimescaleDB y SQLite para detectar consultas lentas, índices faltantes y deadlocks automáticamente.",
+        "Culprit SQL Studio se conecta en modo solo lectura a PostgreSQL, SQL Server, MySQL, MariaDB, ClickHouse, YugabyteDB, TimescaleDB y SQLite para detectar consultas lentas, índices faltantes y deadlocks automáticamente.",
       upsellPrimaryCta: "Explorar Culprit SQL Studio",
       upsellSecondaryCta: "Repositorio en GitHub",
       ecosystemHeading: "Ecosistema Open Source Culprit SQL",
@@ -1135,7 +1193,7 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
         navLabel: "Todos los motores",
         title: "Culprit Explain: Visualizador online gratuito de planes SQL y deadlocks",
         description:
-          "Visualiza planes de ejecución de PostgreSQL EXPLAIN ANALYZE, SQL Server .sqlplan, MySQL, MariaDB, YugabyteDB y SQLite, compara planes Antes/Después y analiza deadlocks localmente en WebAssembly.",
+          "Visualiza planes de ejecución de PostgreSQL EXPLAIN ANALYZE, SQL Server .sqlplan, MySQL, MariaDB, ClickHouse, YugabyteDB y SQLite, compara planes Antes/Después y analiza deadlocks localmente en WebAssembly.",
         h1: "Entiende cualquier plan de ejecución SQL o deadlock en segundos",
         subtitle: "Arrastra un plan o reporte de deadlock para ver diagramas interactivos, cuellos de botella, lectura de caché vs disco y comparaciones lado a lado.",
         faqs: [ES_PRIVACY_FAQ],
@@ -1162,6 +1220,14 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
         description: "Visualiza MySQL EXPLAIN FORMAT=JSON, árboles EXPLAIN ANALYZE de MySQL 8+ y planes MariaDB en tu navegador.",
         h1: "Visualizador de EXPLAIN para MySQL y MariaDB",
         subtitle: "Convierte salidas EXPLAIN FORMAT=JSON y EXPLAIN ANALYZE en diagramas claros con alertas de escaneo completo y filesort.",
+        faqs: [ES_PRIVACY_FAQ],
+      },
+      clickhouse: {
+        navLabel: "ClickHouse",
+        title: "Visualizador ClickHouse EXPLAIN PLAN JSON Online | Culprit Explain",
+        description: "Visualiza planes físicos ClickHouse EXPLAIN PLAN json = 1 en tu navegador e inspecciona etapas ReadFromMergeTree, agregaciones y ordenamientos.",
+        h1: "Visualizador de ClickHouse EXPLAIN PLAN",
+        subtitle: "Pega la salida JSON de EXPLAIN PLAN json = 1, description = 1 para analizar lecturas MergeTree y tuberías de agregación.",
         faqs: [ES_PRIVACY_FAQ],
       },
       yugabytedb: {
@@ -1252,7 +1318,7 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
       upsellBadge: "Gratuit & Open Source · MIT",
       upsellTitle: "Ne cherchez plus vos requêtes lentes plan par plan.",
       upsellBody:
-        "Culprit SQL Studio se connecte en lecture seule à PostgreSQL, SQL Server, MySQL, MariaDB, YugabyteDB, TimescaleDB et SQLite pour classer les requêtes lentes, tester les index et analyser les interblocages.",
+        "Culprit SQL Studio se connecte en lecture seule à PostgreSQL, SQL Server, MySQL, MariaDB, ClickHouse, YugabyteDB, TimescaleDB et SQLite pour classer les requêtes lentes, tester les index et analyser les interblocages.",
       upsellPrimaryCta: "Découvrir Culprit SQL Studio",
       upsellSecondaryCta: "Dépôt GitHub",
       ecosystemHeading: "L'écosystème Open Source Culprit SQL",
@@ -1275,7 +1341,7 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
         navLabel: "Tous moteurs",
         title: "Culprit Explain : Visualiseur gratuit en ligne de plans d'exécution SQL et deadlocks",
         description:
-          "Visualisez les plans PostgreSQL EXPLAIN ANALYZE, SQL Server .sqlplan, MySQL, MariaDB, YugabyteDB et SQLite, comparez deux plans côte à côte et analysez les deadlocks localement en WebAssembly.",
+          "Visualisez les plans PostgreSQL EXPLAIN ANALYZE, SQL Server .sqlplan, MySQL, MariaDB, ClickHouse, YugabyteDB et SQLite, comparez deux plans côte à côte et analysez les deadlocks localement en WebAssembly.",
         h1: "Comprenez n'importe quel plan d'exécution SQL ou deadlock en quelques secondes",
         subtitle: "Déposez un plan ou un journal d'interblocage pour obtenir des diagrammes interactifs, les goulots d'étranglement, les lectures cache/disque et la comparaison Avant/Après.",
         faqs: [FR_PRIVACY_FAQ],
@@ -1302,6 +1368,14 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
         description: "Visualisez MySQL EXPLAIN FORMAT=JSON, EXPLAIN ANALYZE (MySQL 8+) et les plans MariaDB localement dans votre navigateur.",
         h1: "Visualiseur MySQL & MariaDB EXPLAIN",
         subtitle: "Transformez vos sorties EXPLAIN FORMAT=JSON et EXPLAIN ANALYZE en diagrammes clairs avec détection des parcours complets et filesorts.",
+        faqs: [FR_PRIVACY_FAQ],
+      },
+      clickhouse: {
+        navLabel: "ClickHouse",
+        title: "Visualiseur ClickHouse EXPLAIN PLAN JSON en ligne | Culprit Explain",
+        description: "Visualisez les plans physiques ClickHouse EXPLAIN PLAN json = 1 en ligne et inspectez les étapes ReadFromMergeTree, d'agrégation et de tri en WebAssembly.",
+        h1: "Visualiseur ClickHouse EXPLAIN PLAN",
+        subtitle: "Collez la sortie JSON de EXPLAIN PLAN json = 1, description = 1 pour inspecter les lectures MergeTree et les pipelines d'agrégation.",
         faqs: [FR_PRIVACY_FAQ],
       },
       yugabytedb: {
@@ -1392,7 +1466,7 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
       upsellBadge: "Gratuito e Open Source · MIT",
       upsellTitle: "Pare de caçar consultas lentas analisando um plano por vez.",
       upsellBody:
-        "O Culprit SQL Studio conecta-se em modo somente leitura ao PostgreSQL, SQL Server, MySQL, MariaDB, YugabyteDB, TimescaleDB e SQLite para classificar queries lentas, sugerir índices e capturar deadlocks automaticamente.",
+        "O Culprit SQL Studio conecta-se em modo somente leitura ao PostgreSQL, SQL Server, MySQL, MariaDB, ClickHouse, YugabyteDB, TimescaleDB e SQLite para classificar queries lentas, sugerir índices e capturar deadlocks automaticamente.",
       upsellPrimaryCta: "Conhecer o Culprit SQL Studio",
       upsellSecondaryCta: "Repositório GitHub",
       ecosystemHeading: "Ecossistema Open Source Culprit SQL",
@@ -1415,7 +1489,7 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
         navLabel: "Todos os bancos",
         title: "Culprit Explain: Visualizador online gratuito de planos de execução SQL e deadlocks",
         description:
-          "Visualize planos de execução do PostgreSQL EXPLAIN ANALYZE, SQL Server .sqlplan, MySQL, MariaDB, YugabyteDB e SQLite, compare planos Antes/Depois e analise deadlocks localmente em WebAssembly.",
+          "Visualize planos de execução do PostgreSQL EXPLAIN ANALYZE, SQL Server .sqlplan, MySQL, MariaDB, ClickHouse, YugabyteDB e SQLite, compare planos Antes/Depois e analise deadlocks localmente em WebAssembly.",
         h1: "Entenda qualquer plano de execução SQL ou deadlock em segundos",
         subtitle: "Solte um plano ou dump de deadlock para ver diagramas interativos, gargalos, I/O de cache vs disco e comparação lado a lado.",
         faqs: [PT_PRIVACY_FAQ],
@@ -1442,6 +1516,14 @@ export const BUNDLES: Record<LocaleCode, LocaleBundle> = {
         description: "Visualize MySQL EXPLAIN FORMAT=JSON, árvores EXPLAIN ANALYZE do MySQL 8+ e planos do MariaDB localmente no navegador.",
         h1: "Visualizador MySQL & MariaDB EXPLAIN",
         subtitle: "Transforme saídas EXPLAIN FORMAT=JSON e EXPLAIN ANALYZE em diagramas claros com alertas de table scan e filesort.",
+        faqs: [PT_PRIVACY_FAQ],
+      },
+      clickhouse: {
+        navLabel: "ClickHouse",
+        title: "Visualizador ClickHouse EXPLAIN PLAN JSON Online | Culprit Explain",
+        description: "Visualize planos físicos ClickHouse EXPLAIN PLAN json = 1 no navegador e inspecione etapas ReadFromMergeTree, agregações e ordenações via WebAssembly.",
+        h1: "Visualizador ClickHouse EXPLAIN PLAN",
+        subtitle: "Cole a saída JSON do EXPLAIN PLAN json = 1, description = 1 para analisar leituras MergeTree e pipelines de agregação.",
         faqs: [PT_PRIVACY_FAQ],
       },
       yugabytedb: {
@@ -1512,6 +1594,7 @@ export function parsePathnameLocaleAndSlug(
     "postgres",
     "sql-server",
     "mysql",
+    "clickhouse",
     "yugabytedb",
     "sqlite",
     "compare",
@@ -1537,6 +1620,8 @@ export function slugModeAndEngine(slug: RouteSlug): { mode: StudioMode; engineFi
       return { mode: "plan", engineFilter: "mssql", ogImage: "og/sql-server.png" };
     case "mysql":
       return { mode: "plan", engineFilter: "mysql", ogImage: "og/mysql.png" };
+    case "clickhouse":
+      return { mode: "plan", engineFilter: "clickhouse", ogImage: "og/clickhouse.png" };
     case "yugabytedb":
       return { mode: "plan", engineFilter: "yugabyte", ogImage: "og/yugabytedb.png" };
     case "sqlite":
