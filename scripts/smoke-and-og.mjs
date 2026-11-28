@@ -201,13 +201,11 @@ async function renderOgAndHero(browser) {
       <div class="left">
         <div class="pill"><span class="dot"></span> ${card.eyebrow}</div>
         <div class="brand">
-          <div class="mark">
-            <svg width="30" height="30" viewBox="0 0 32 32">
-              <circle cx="14" cy="14" r="6.5" fill="none" stroke="#1b1a18" stroke-width="2.6"/>
-              <path d="M19 19l5.5 5.5" stroke="#1b1a18" stroke-width="2.8" stroke-linecap="round"/>
-              <circle cx="14" cy="14" r="2" fill="#1b1a18"/>
-            </svg>
-          </div>
+          <svg width="52" height="52" viewBox="0 0 460 460" style="display:block;flex:none">
+            <rect width="460" height="460" rx="102" fill="#ffcf33"/>
+            <path d="M 283.33 301.78 A 106.25 106.25 0 1 1 283.33 158.22" fill="none" stroke="#1b1a18" stroke-width="67.5" stroke-linecap="butt"/>
+            <polygon points="340.5,179 391.5,230 340.5,281 289.5,230" fill="#e0484e"/>
+          </svg>
           <span>Culprit Explain</span>
         </div>
         <h1>${card.titleHtml}</h1>
@@ -250,6 +248,93 @@ async function renderOgAndHero(browser) {
   }
   await ogCtx.close();
   await copyFile(path.join(ogDir, "home.png"), path.join(publicDir, "og.png"));
+
+  // Render crisp 2x README hero banners (hero-dark.png & hero-light.png) with the new Culprit mark
+  const heroCtx = await browser.newContext({ viewport: { width: 1280, height: 288 }, deviceScaleFactor: 2 });
+  for (const isDark of [true, false]) {
+    const hp = await heroCtx.newPage();
+    await hp.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>
+      * { box-sizing: border-box; margin: 0; }
+      body {
+        width: 1280px; height: 288px; overflow: hidden;
+        border-radius: 18px;
+        border: 1px solid ${isDark ? "#26241f" : "#e5e1d6"};
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0 64px;
+        background-color: ${isDark ? "#0f0e0c" : "#fbfaf6"};
+        background-image:
+          radial-gradient(circle at 12% 50%, ${isDark ? "rgba(255, 207, 51, 0.14)" : "rgba(255, 207, 51, 0.22)"}, transparent 45%),
+          radial-gradient(${isDark ? "rgba(255,255,255,0.06)" : "rgba(27,26,24,0.07)"} 1px, transparent 1px);
+        background-size: 100% 100%, 22px 22px;
+        font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+        color: ${isDark ? "#f2f0ea" : "#181715"};
+      }
+      .left { display: flex; align-items: center; gap: 28px; max-width: 700px; }
+      .pill {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 5px 12px; border-radius: 999px;
+        background: ${isDark ? "#1b1a17" : "#f1eee5"};
+        border: 1px solid ${isDark ? "#2e2c26" : "#e0dbc9"};
+        font-size: 12.5px; font-weight: 600;
+        color: ${isDark ? "#c5c2b9" : "#4d4a43"};
+        margin-bottom: 12px;
+      }
+      .dot { width: 7px; height: 7px; border-radius: 50%; background: #4cbb84; }
+      h1 { font-size: 40px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.08; }
+      h1 span { font-weight: 600; color: ${isDark ? "#9c988e" : "#6f6b62"}; }
+      p { margin-top: 10px; font-size: 16.5px; line-height: 1.45; color: ${isDark ? "#a5a198" : "#57534b"}; max-width: 560px; }
+      .right { display: flex; flex-direction: column; gap: 10px; width: 386px; flex: none; }
+      .row {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 12px 16px; border-radius: 12px;
+        background: ${isDark ? "#171613" : "#ffffff"};
+        border: 1px solid ${isDark ? "#2a2822" : "#e5e1d6"};
+        box-shadow: ${isDark ? "0 8px 24px rgba(0,0,0,0.35)" : "0 4px 14px rgba(24,23,21,0.04)"};
+      }
+      .rt { font-size: 14px; font-weight: 700; }
+      .rs { font-size: 12px; color: ${isDark ? "#949086" : "#6f6b62"}; margin-top: 2px; }
+      .tag {
+        padding: 4px 10px; border-radius: 999px;
+        font-family: ui-monospace, "SF Mono", monospace; font-size: 11.5px; font-weight: 700;
+      }
+      .t-amber { background: ${isDark ? "rgba(255,207,51,0.15)" : "rgba(180,132,0,0.12)"}; color: ${isDark ? "#ffcf33" : "#8a6200"}; }
+      .t-green { background: rgba(76,187,132,0.15); color: ${isDark ? "#4cbb84" : "#1c7c4d"}; }
+      .t-coral { background: rgba(240,106,81,0.15); color: ${isDark ? "#f06a51" : "#c03c24"}; }
+    </style></head><body>
+      <div class="left">
+        <svg width="84" height="84" viewBox="0 0 460 460" style="display:block;flex:none;filter:drop-shadow(0 12px 28px rgba(0,0,0,${isDark ? "0.45" : "0.12"}))">
+          <rect width="460" height="460" rx="102" fill="#ffcf33"/>
+          <path d="M 283.33 301.78 A 106.25 106.25 0 1 1 283.33 158.22" fill="none" stroke="#1b1a18" stroke-width="67.5" stroke-linecap="butt"/>
+          <polygon points="340.5,179 391.5,230 340.5,281 289.5,230" fill="#e0484e"/>
+        </svg>
+        <div>
+          <div class="pill"><span class="dot"></span> 100% Client-Side WebAssembly</div>
+          <h1><span>explain.</span>culpritsql.com</h1>
+          <p>Online SQL execution plan visualizer, structural plan comparator, deadlock cycle graph &amp; Extended Events (.xel) inspector.</p>
+        </div>
+      </div>
+      <div class="right">
+        <div class="row">
+          <div><div class="rt">Execution Plan Explorer</div><div class="rs">Diagram · Tree · Ops · Tables · Raw</div></div>
+          <span class="tag t-amber">8 Engines</span>
+        </div>
+        <div class="row">
+          <div><div class="rt">Side-by-Side Plan Diff</div><div class="rs">Before vs After structural comparison</div></div>
+          <span class="tag t-green">167x faster</span>
+        </div>
+        <div class="row">
+          <div><div class="rt">Deadlock &amp; .xel Analyzer</div><div class="rs">SQL Server · PostgreSQL · InnoDB</div></div>
+          <span class="tag t-coral">Lock Cycle</span>
+        </div>
+      </div>
+    </body></html>`);
+    await hp.screenshot({
+      path: path.join(assetsDir, isDark ? "hero-dark.png" : "hero-light.png"),
+      omitBackground: true,
+    });
+    await hp.close();
+  }
+  await heroCtx.close();
 }
 
 const contentTypes = {
